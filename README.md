@@ -12,7 +12,13 @@ npm install -d
 npm start
 ```
 
-Then visit `localhost:8081`
+Then visit `localhost:8081/planet`, etc.
+
+## Architecture
+
+`viz/` directory holds all the node & THREE.js visualizations. 
+
+`app/` directory holds the server-side API with endpoints. Global API is `https://library.cybernetics.social`. Much of the logic can happen in here.
 
 ## Reference images
 
