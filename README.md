@@ -19,6 +19,9 @@ Endpoints:
 - `/plot/names`: Return all the names of the plots
 - `/plots`: Return all of the plots and their names and links
 - `/plots/<plotid>`: Return only one of the plots and their names and links
+- `/books`: Return all of the books and their names and links
+- `/books/<bookid>`: Return only one of the books and their names and links
+
 
 
 
