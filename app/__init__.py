@@ -147,6 +147,22 @@ def planet_page(planetid):
     return render_template('planet.html', planetid=planetid)
 
 
+@app.route('/plots')
+def plots():
+    """returns checkout planet info for all attendees"""
+    plots = defaultdict(lambda: {'topic_mixture': [], 'checkouts': 0})
+    for checkout in db['checkouts'].all():
+        book_id = checkout['book_id']
+        topic_mixture = LIBRARY['books'][book_id]['topics']
+        plots[checkout['attendee_id']]['topic_mixture'].append(topic_mixture)
+        plots[checkout['attendee_id']]['checkouts'] += 1
+
+    for id, d in plots.items():
+        d['topic_mixture'] = mix_topics(*d['topic_mixture'])
+        d['color'] = ColorHash(id).hex
+        d['name'] = name_from_id(id)
+    return jsonify(**plots)
+
 
 @app.route('/plot/<plotid>')
 def plot_page(plotid):
