@@ -52,13 +52,7 @@ def plot_unlink():
     return jsonify({})
 
 
-@app.route('/plot/books_linked/<plotid>')
-def plot_books_linked(plotid):
-    resp = links_db.search(where('plot_id') == plotid)
-    books = [{"book_id": bid} for bid in set([link['book_id'] for link in resp])]
-    return jsonify(books)
-
-@app.route('/plot/rename', methods=['POST'])
+app.route('/plot/rename', methods=['POST'])
 def plot_rename():
     #records a addtoplot for a plot and station
     # save new book ids
@@ -92,15 +86,14 @@ def plot_names():
 def plot_names_route():
     return jsonify(plot_names())
 
-
-def plot_all():
+def replay_plots(links):
     plots = defaultdict(lambda: defaultdict(dict))
     plotnames = plot_names()
 
     # could there not be some functional way to do this?
 
     # replay the linking/unlinking
-    for l in sorted(links_db.all(), key=itemgetter('timestamp')):
+    for l in sorted(links, key=itemgetter('timestamp')):
         this_pid = l['plot_id']
         this_bid= l['book_id']
 
@@ -119,11 +112,15 @@ def plot_all():
 
     return plots
 
-@app.route('/plot/all')
+@app.route('/plots/')
 def plot_all_route():
-    return jsonify(plot_all())
+    return jsonify(replay_plots(links_db.all()))
 
 
+@app.route('/plots/<plotid>')
+def plot_books_linked(plotid):
+    resp = links_db.search(where('plot_id') == plotid)
+    return jsonify(replay_plots(resp))
 
 
 @app.route('/book/<book_id>', methods=['GET'])
