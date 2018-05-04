@@ -1,7 +1,8 @@
 from tinydb import TinyDB, where, Query
 import json
 import random
-from flask import Flask, request, jsonify, redirect, render_template
+import requests
+from flask import Flask, request, jsonify, redirect, render_template, g
 from flask_cors import CORS
 from collections import defaultdict
 from operator import itemgetter
@@ -13,6 +14,28 @@ CORS(app)
 db = TinyDB('data/db.json')
 plots_db = db.table('plots')
 links_db = db.table('links')
+
+
+# initial Library thing dictionary fetch
+lib_thing = requests.get("http://www.librarything.com/api_getdata.php?userid=cyberneticscon&showstructure=1&max=1000&showTags=10&booksort=title_REV&responseType=json").json()['books']
+
+# fetch from Library Thing & return current dictionary
+@app.route('/lib_thing/fetch')
+def fetch_lib_thing():
+    global lib_thing
+    lib_thing = requests.get("http://www.librarything.com/api_getdata.php?userid=cyberneticscon&showstructure=1&max=1000&showTags=10&booksort=title_REV&responseType=json").json()['books']
+    print(lib_thing)
+    return jsonify(lib_thing)
+
+# return existing Libary Thing dictionary without fetch
+@app.route('/lib_thing/current')
+def current_lib_thing():
+    global lib_thing
+    if lib_thing is None:
+        lib_thing = []
+    print(lib_thing)
+    return jsonify(lib_thing)
+
 
 Group = Query()
 
