@@ -1,101 +1,85 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/3.4.0/lodash.min.js"></script>
-    <title>Instascan</title>
-    <script type="text/javascript" src="instascan.min.js"></script>
-  </head>
-  <body>
-    <h3>Try scanning two qr codes at the same time- one of a name, and one of a book.</h3>
-    <video id="preview"></video>
-    <div id="output"></div>
-    <iframe width="100%" height="600px" id="iframe" allowtransparency="true" style="background: #555555;"></iframe>
-    <script type="text/javascript">
-      window.thisbook = "";
 
-      var sounds_dir = "wavs/";
-      var sounds_meow = ["meow1.wav", "meow2.wav", "meow3.wav", "meow4.wav", "meow5.mp3", "meow6.wav", "meow7.mp3", "meow8.wav", "meow9.wav", "meow10.wav",
-                         "meow11.wav", "meow12.wav", "meow13.wav", "meow14.wav", "meow15.mp3", "meow16.mp3"];
-      var sounds_bell = ["idea.wav"];
+<head>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.4.0/lodash.min.js"></script>
+  <title>Cybernetics Library Scanner</title>
+  <script type="text/javascript" src="instascan.min.js"></script>
+  <script type="text/javascript" src="scanner.js"></script>
+</head>
+<style>
+  body {
+    margin: 0px;
+    padding: 0px;
+    height: 100%;
+    background-color: rgb(204, 236, 220);
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  }
 
-			function hashCode(str) {
-					var hash = 0;
-					if (str.length == 0) return hash;
-					for (i = 0; i < str.length; i++) {
-							char = str.charCodeAt(i);
-							hash = ((hash<<5)-hash)+char;
-							hash = hash & hash; // Convert to 32bit integer
-					}
-					return hash;
-			}
+  .steps {
+      font-family: 'Steps-Mono';
+  }
+
+  .flexcontainer {
+    height: fit-content;
+    margin-top: 3em;
+    display: flex;
+    /* align-items: center; this aligns vertically*/
+    justify-content: center;
+    flex-direction: row;
+  }
+
+  #preview {
+    width: 385px;
+    height: 385px;
+    /* border-radius: 100%; */
+    filter: grayscale(100%);
+    border: 20px solid green;
+    border-image-source: linear-gradient(rgb(204, 236, 220), grey);
+    border-image-slice: 20;
+  }
+
+  .video-circle {
+    border-radius: 50%;
+    object-fit: cover;
+  }
 
 
-      function isBook(s) {
-        if(s.match(/\d\d\d\d\d\d\d\d/)) {
-          return true
-        }
-        else { return false; }
-      }
+  .centerdiv {}
 
-      function isName(s) {  return !isBook(s);   }
+  iframe {
+    background: linear-gradient(180deg, rgb(204, 236, 220) 0%, rgb(204, 236, 220) 0%, rgba(95, 0, 143, 1) 100%);
+  }
 
-      function bookUrlToId(s) {
-        return s.split("/")[s.split("/").length - 1];
-      }
+  h3 {
+    background-color: rgb(230, 230, 230);
+    /* font-weight: 400; */
+    width: 424px;
+    /* text-align: center; */
+  }
 
-      function parseQR(content) {
-        var res = {};
-        res.books = {};
-        res.names = {};
-        content.forEach(function(d, i) {
-          if(isBook(d)) { res.books[bookUrlToId(d)] = d; }
-          if(isName(d)) { res.names[d] = d; }
-        });
-        return res;
-      }
+  img {
+    width: 157px;
+    position: absolute;
+    margin-left: 2em;
+  }
+</style>
 
-      function updateIframe(content) {
-        console.log(content);
-        var tinycaturl = "https://www.librarycat.org/lib/CyberneticsCon/item/";
+<body>
+  <img src="cybernetics_library.png"></img>
+  <div class="flexcontainer">
+    <div class="centerdiv">
+      <video id="preview" class="video-circle"></video>
+      <h3>Scan Books, Objects, and Plot Markers here!</h3>
+      <h3>Scan an Object or Book <i>with</i> a Plot Marker to add it to a Plot</h3>
+    </div>
+  </div>
 
-        var res = parseQR(content);
-        window.res = res;
-        
-        var thisbookids = Object.keys(res.books).sort()
+  <!-- <div id="output"></div> -->
+  <iframe width="100%" height="1400px" id="iframe" allowtransparency="true" frameborder="0"></iframe>
 
-        var thisbooks = thisbookids.join("+");
-        if((thisbooks) && (window.prevbooks != thisbooks)) {
+</body>
 
-          var s = "";
-          s+= "\nBOOKs = " + thisbookids.join(", ");
-          s+= "\nNAMEs = " + Object.keys(res.names).join(", ");
-          $("#output").html(s);
-          
-          console.log(s);
-          $("#iframe").attr("src", "https://www.librarycat.org/lib/CyberneticsCon/item/" + thisbookids[0]);
-          window.prevbooks = thisbooks;
-					sound = sounds_meow[hashCode(thisbookids[0]) % sounds_meow.length]
-//          var sound = _.sample(sounds_meow);
-          var sound = _.sample(sounds_bell);
-          var snd = new Audio(sounds_dir + sound); // buffers automatically when created
-          snd.play();
-        }
-      }
-      let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
-      scanner.addListener('scan', function (content) {
-        updateIframe(content);
-      });
-      Instascan.Camera.getCameras().then(function (cameras) {
-        if (cameras.length > 0) {
-          scanner.start(cameras[0]);
-        } else {
-          console.error('No cameras found.');
-        }
-      }).catch(function (e) {
-        console.error(e);
-      });
-    </script>
-  </body>
 </html>
-
