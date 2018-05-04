@@ -147,6 +147,27 @@ def planet_page(planetid):
     return render_template('planet.html', planetid=planetid)
 
 
+@app.route('/addtoplot', methods=['POST'])
+def addtoplot(id):
+    """records a addtoplot for a plot and station"""
+    # save new book ids
+    data = request.get_json()
+    db['addtoplots'].append({
+        'book_id': data['book_id'],
+        'plot_id': data['plot_id'],
+        'station_id': data['station_id'],
+        'timestamp': data['timestamp']
+    })
+
+    if(id) in LIBRARY['books']:
+        # return book info
+        book = LIBRARY['books'][id]
+        return jsonify(**book)
+
+
+
+
+
 @app.route('/plots')
 def plots():
     """returns checkout planet info for all attendees"""
