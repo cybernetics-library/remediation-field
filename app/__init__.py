@@ -30,7 +30,7 @@ def book(id):
         return jsonify(**book)
 
 
-@app.route('/addtoplot', methods=['POST'])
+@app.route('/add_to_plot', methods=['POST'])
 def addtoplot():
     #records a addtoplot for a plot and station
     # save new book ids
@@ -57,10 +57,10 @@ def plot_api(plotid):
     return jsonify(books)
 
 
-
 @app.route('/plots')
 def plots():
     #returns all plots & their checkouts
+    resp = plot_db.search(where('plot_id') == plotid)
 
 
     return jsonify(**plots)
