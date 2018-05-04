@@ -1,4 +1,4 @@
-from tinydb import TinyDB, where
+from tinydb import TinyDB, where, Query
 import json
 import random
 from .db import DB
@@ -20,7 +20,7 @@ db = {
 }
 
 plot_db = TinyDB('data/plot_db.json')
-
+Group = Query()
 
 @app.route('/book/<id>', methods=['GET'])
 def book(id):
@@ -49,23 +49,24 @@ def addtoplot():
 
 
 
+@app.route('/books_in_plot/<plotid>')
+def plot_api(plotid):
+    #records a addtoplot for a plot and station
+    resp = plot_db.search(where('plot_id') == plotid)
+    books = list(set([c['book_id'] for c in resp]))
+    return jsonify(books)
+
+
+
 @app.route('/plots')
 def plots():
-    #returns checkout planet info for all attendees
-    plots = defaultdict(lambda: {'topic_mixture': [], 'checkouts': 0})
-    for checkout in db['checkouts'].all():
-        book_id = checkout['book_id']
-        topic_mixture = LIBRARY['books'][book_id]['topics']
-        plots[checkout['attendee_id']]['topic_mixture'].append(topic_mixture)
-        plots[checkout['attendee_id']]['checkouts'] += 1
+    #returns all plots & their checkouts
 
-    for id, d in plots.items():
-        d['topic_mixture'] = mix_topics(*d['topic_mixture'])
-        d['color'] = ColorHash(id).hex
-        d['name'] = name_from_id(id)
+
     return jsonify(**plots)
 
 
+# this is a public-facing url -- aka printed on the QR code
 @app.route('/plot/<plotid>')
 def plot_page(plotid):
     #forward to plot page because plot QR codes have this URL embedded in them 
