@@ -114,8 +114,8 @@ def replay_plots(links):
 
 @app.route('/plots/')
 def plot_all_route():
-    return jsonify(replay_plots(links_db.all()))
-
+    resp = links_db.all()
+    return jsonify(replay_plots(resp))
 
 @app.route('/plots/<plotid>')
 def plot_books_linked(plotid):
@@ -123,13 +123,38 @@ def plot_books_linked(plotid):
     return jsonify(replay_plots(resp))
 
 
-@app.route('/book/<book_id>', methods=['GET'])
-def book(book_id):
-    resp = links_db.search(where('book_id') == book_id)
-    data = {}
-    data["plots"] = list(set([link['plot_id'] for link in resp]))
-    return jsonify(data)
 
+
+def replay_books(links):
+    books = defaultdict(lambda: defaultdict(dict))
+
+    # replay the linking/unlinking
+    for l in sorted(links, key=itemgetter('timestamp')):
+        this_pid = l['plot_id']
+        this_bid= l['book_id']
+
+        if(l['action'] == "link"):
+            books[this_bid]["links"][this_pid] = l
+
+        if(l['action'] == "unlink"):
+            if (this_bid in books) and (this_pid in books[this_bid]["links"]):
+                books[this_bid]["links"].pop(this_pid)
+
+
+    return books
+
+
+
+@app.route('/books/', methods=['GET'])
+def books_all():
+    resp = links_db.all()
+    return jsonify(replay_books(resp))
+
+
+@app.route('/books/<book_id>', methods=['GET'])
+def books_one(book_id):
+    resp = links_db.search(where('book_id') == book_id)
+    return jsonify(replay_books(resp))
 
 
 # this is a public-facing url -- aka printed on the QR code
