@@ -25,7 +25,9 @@ Group = Query()
 @app.route('/book/<book_id>', methods=['GET'])
 def book(book_id):
     resp = plot_db.search(where('book_id') == book_id)
-    print(resp)
+    data = {}
+    data["plots"] = list(set([checkin['plot_id'] for checkin in resp]))
+    return jsonify(data)
 
 
 @app.route('/add_to_plot', methods=['POST'])
@@ -49,7 +51,7 @@ def addtoplot():
 @app.route('/books_in_plot/<plotid>')
 def books_in_plot(plotid):
     resp = plot_db.search(where('plot_id') == plotid)
-    books = [{"book_id": b} for b in set([c['book_id'] for c in resp])]
+    books = [{"book_id": bid} for bid in set([checkin['book_id'] for checkin in resp])]
     return jsonify(books)
 
 
