@@ -6,6 +6,27 @@ This is based off of https://github.com/cybernetics-conference/cybersym.
 
 ## Setup
 
+
+### Api
+
+`python app.py`.
+
+Endpoints:
+
+- `/plot/link`: Link a plot to a book. Needs `book_id`, `plot_id`, `station_id`, `timestamp`.
+- `/plot/unlink`: Unlink a plot and a book. Needs `book_id`, `plot_id`, `station_id`, `timestamp`.
+- `/plot/rename`: Rename a plot. Needs `book_id`, `plot_id`, `station_id`, `timestamp`.
+- `/plot/names`: Return all the names of the plots
+- `/plots`: Return all of the plots and their names and links
+- `/plots/<plotid>`: Return only one of the plots and their names and links
+- `/books`: Return all of the books and their names and links
+- `/books/<bookid>`: Return only one of the books and their names and links
+
+
+
+
+### Visualizations 
+
 In the `viz/` directory:
 ```
 npm install -d
