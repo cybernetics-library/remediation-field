@@ -2,7 +2,7 @@ from tinydb import TinyDB, where, Query
 import json
 import random
 import requests
-from flask import Flask, request, jsonify, redirect, render_template, g
+from flask import Flask, request, jsonify, redirect, render_template
 from flask_cors import CORS
 from collections import defaultdict
 from operator import itemgetter
