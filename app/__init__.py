@@ -146,6 +146,19 @@ def planet_page(planetid):
     """forward to planet page because badge QR codes have this URL embedded in them """
     return render_template('planet.html', planetid=planetid)
 
+
+
+@app.route('/plot/<plotid>')
+def plot_page(plotid):
+    """forward to plot page because plot QR codes have this URL embedded in them """
+    return render_template('plot.html', plotid=plotid)
+
+
+
+
+
+
+
 @app.route('/books')
 def books():
     """returns checked-out book ids"""
