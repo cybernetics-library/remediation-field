@@ -1,0 +1,8 @@
+@font-face {
+  font-family: 'Steps-Mono';
+  src: url('assets/fonts/steps-mono.otf') format('otf');
+  src: url('assets/fonts/steps-mono.eot'); /* IE9 Compat Modes */
+  src: url('assets/fonts/steps-mono-webfont.woff2') format('woff2'), /* Super Modern Browsers */
+       url('assets/fonts/steps-mono-webfont.woff') format('woff'), /* Pretty Modern Browsers */
+       url('assets/fonts/steps-mono.ttf')  format('truetype') /* Safari, Android, iOS */
+}
