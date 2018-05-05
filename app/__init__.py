@@ -98,11 +98,11 @@ def replay_plots(links):
         this_bid= l['book_id']
 
         if(l['action'] == "link"):
-            plots[this_pid]["links"][this_bid] = l
+            plots[this_pid]["plots"][this_bid] = l
 
         if(l['action'] == "unlink"):
-            if (this_pid in plots) and (this_bid in plots[this_pid]["links"]):
-                plots[this_pid]["links"].pop(this_bid)
+            if (this_pid in plots) and (this_bid in plots[this_pid]["plots"]):
+                plots[this_pid]["plots"].pop(this_bid)
 
 
     # add names
@@ -134,11 +134,11 @@ def replay_books(links):
         this_bid= l['book_id']
 
         if(l['action'] == "link"):
-            books[this_bid]["links"][this_pid] = l
+            books[this_bid]["plots"][this_pid] = l
 
         if(l['action'] == "unlink"):
-            if (this_bid in books) and (this_pid in books[this_bid]["links"]):
-                books[this_bid]["links"].pop(this_pid)
+            if (this_bid in books) and (this_pid in books[this_bid]["plots"]):
+                books[this_bid]["plots"].pop(this_pid)
 
 
     return books
