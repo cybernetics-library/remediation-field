@@ -148,13 +148,19 @@ def replay_books(links):
 @app.route('/books/', methods=['GET'])
 def books_all():
     resp = links_db.all()
-    return jsonify(replay_books(resp))
+    books = replay_books(resp)
+    map(lambda book: book['attributes'] = {}, books)
+    # INSERT POTENTIAL API QUERY FROM LIBRARYTHING HERE
+    return jsonify(books)
 
 
 @app.route('/books/<book_id>', methods=['GET'])
 def books_one(book_id):
     resp = links_db.search(where('book_id') == book_id)
-    return jsonify(replay_books(resp))
+    books = replay_books(resp)
+    map(lambda book: book['attributes'] = {}, books)
+    # INSERT POTENTIAL API QUERY FROM LIBRARYTHING HERE
+    return jsonify(books)
 
 
 # this is a public-facing url -- aka printed on the QR code
