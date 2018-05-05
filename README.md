@@ -11,6 +11,8 @@ This is based off of https://github.com/cybernetics-conference/cybersym.
 
 `python app.py`.
 
+When running for production, this is run using gunicorn and a virtualenv with pm2 using the shell script `start_library_api.sh`.
+
 Endpoints:
 
 - `/plot/link` [POST]: Link a plot to a book. Needs `book_id`, `plot_id`, `station_id`, `timestamp`.
