@@ -133,7 +133,7 @@ class Plotfields {
        v.update(self.planets)
     });
 
-    if(this.planetFocusID in this.planets) {
+    if(this.UI.turnOnPlanetFrame == true && this.planetFocusID in this.planets) {
       this.UI.movePlanetFrame({
         obj: this.planets[this.planetFocusID],
         pos: this.planets[this.planetFocusID].pos
@@ -230,9 +230,6 @@ function fetchData() {
 
         _.each(diffkeys, function(k) {
           var thisbook = newdata[k];
-          console.log(k);
-
-          console.log(thisbook)
 
           var planetattr = {
                           id: k,
