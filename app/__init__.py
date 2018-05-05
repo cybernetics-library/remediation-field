@@ -6,6 +6,8 @@ from flask import Flask, request, jsonify, redirect, render_template
 from flask_cors import CORS
 from collections import defaultdict
 from operator import itemgetter
+import copy
+
 
 app = Flask(__name__)
 app.config['TEMPLATES_AUTO_RELOAD'] = True
@@ -141,7 +143,8 @@ def replay_plots(links):
     # could there not be some functional way to do this?
 
     # replay the linking/unlinking
-    for l in sorted(links, key=itemgetter('timestamp')):
+    for link in sorted(links, key=itemgetter('timestamp')):
+        l = copy.deepcopy(link)
         this_pid = l['plot_id']
         this_bid= l['book_id']
 
@@ -165,6 +168,7 @@ def replay_plots(links):
     return plots
 
 
+
 @app.route('/plots/')
 def plot_all_route():
     resp = links_db.all()
@@ -181,7 +185,8 @@ def replay_books(links):
     books = defaultdict(lambda: defaultdict(dict))
 
     # replay the linking/unlinking
-    for l in sorted(links, key=itemgetter('timestamp')):
+    for link in sorted(links, key=itemgetter('timestamp')):
+        l = copy.deepcopy(link)
         this_pid = l['plot_id']
         this_bid= l['book_id']
 
