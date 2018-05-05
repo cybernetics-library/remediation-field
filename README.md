@@ -6,6 +6,29 @@ This is based off of https://github.com/cybernetics-conference/cybersym.
 
 ## Setup
 
+
+### Api
+
+`python app.py`.
+
+When running for production, this is run using gunicorn and a virtualenv with pm2 using the shell script `start_library_api.sh`.
+
+Endpoints:
+
+- `/plot/link` [POST]: Link a plot to a book. Needs `book_id`, `plot_id`, `station_id`, `timestamp`.
+- `/plot/unlink` [POST]: Unlink a plot and a book. Needs `book_id`, `plot_id`, `station_id`, `timestamp`.
+- `/plot/rename` [POST]: Rename a plot. Needs `book_id`, `plot_id`, `station_id`, `timestamp`.
+- `/plot/names` [GET]: Return all the names of the plots
+- `/plots` [GET]: Return all of the plots and their names and links
+- `/plots/<plotid>` [GET]: Return only one of the plots and their names and links
+- `/books` [GET]: Return all of the books and their names and links
+- `/books/<bookid>` [GET]: Return only one of the books and their names and links
+
+
+
+
+### Visualizations 
+
 In the `viz/` directory:
 ```
 npm install -d

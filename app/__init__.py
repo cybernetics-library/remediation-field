@@ -1,247 +1,212 @@
+from tinydb import TinyDB, where, Query
 import json
 import random
-from .db import DB
-from .monuments import compute_monuments_state
-from .pp import compute_pp_state
+import requests
 from flask import Flask, request, jsonify, redirect, render_template
 from flask_cors import CORS
-from .params import MONUMENT_NAMES, TOPICS
-from colorhash import ColorHash
 from collections import defaultdict
-from .planets import name_from_id
+from operator import itemgetter
 
 app = Flask(__name__)
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 CORS(app)
-db = {
-    table: DB(table)
-    for table in ['checkouts']
-}
-LIBRARY = json.load(open('data/library.json', 'r'))
 
-# add missing topics as 0
-for id, book in LIBRARY['books'].items():
-    for t in TOPICS:
-        book['topics'][t] = book['topics'].get(t, 0)
+db = TinyDB('data/db.json')
+plots_db = db.table('plots')
+links_db = db.table('links')
 
+Group = Query()
 
-def get_questions(id):
-    book = LIBRARY['books'][id]
-    questions = book.get('questions')
+collection = 'Field Remediations at Queens Museum'
 
-    # if no questions for this book,
-    # get questions for its topics
-    if questions is None:
-        topics = book['topics']
-        questions = []
-        for t in topics:
-            questions.extend(LIBRARY['questions'][t])
-    return questions
+# utility for getting books from library thing and filtering by collection
+def fetch_lib_thing(collection):
+    lib_thing = requests.get("http://www.librarything.com/api_getdata.php?userid=cyberneticscon&showstructure=1&max=1000&showTags=10&booksort=title_REV&showCollections=1&responseType=json").json()['books']
+
+    flat_lib_thing = map(lambda x: x[1], lib_thing.items())
+
+    def filter_dict_list(dictlist, key, value):
+        return filter(lambda d: value in (d[key]).values(), dictlist)
+
+    lib_collection = filter_dict_list(flat_lib_thing, 'collections', collection)
+
+    return lib_collection
 
 
-def sum_dicts(*dicts):
-    sum = defaultdict(int)
-    for d in dicts:
-        for k, v in d.items():
-            sum[k] += v
-    return sum
+# run book fetch on startup
+lib_collection = fetch_lib_thing(collection)
 
 
-def mix_topics(*topic_mixtures):
-    """compute aggregate topic mixture"""
-    topic_mixture = sum_dicts(*topic_mixtures)
-    total = sum(topic_mixture.values())
-    if total == 0:
-        total = 1
-    return {t: v/total for t, v in topic_mixture.items()}
+# fetch from Library Thing, replace global variable & return current dictionary
+@app.route('/fetch_thing', methods=['GET'])
+def fetch_thing():
+    global lib_collection
+    lib_collection = fetch_lib_thing(collection)
+    return jsonify(lib_collection)
 
 
-@app.route('/checkout/<id>', methods=['POST', 'GET'])
-def checkout(id):
-    if request.method == 'GET':
-        return render_template('book.html', id=id)
-        #return redirect("http://www.example.com?id=" + id, code=302)
-    else:
-        """records a checkout for a attendee and station"""
-        # save new book ids
-        data = request.get_json()
-        db['checkouts'].append({
-            'book_id': id,
-            'attendee_id': data['attendee_id'],
-            'station_id': data['station_id'],
-            'timestamp': data['timestamp']
-        })
-
-        if(id) in LIBRARY['books']:
-            # return book info
-            book = LIBRARY['books'][id]
-            return jsonify(**book)
+# return existing Libary Thing dictionary without fetch
+@app.route('/book', methods=['GET'])
+def all_books():
+    #resp = links_db.all()
+    #books = replay_books(resp)
+    global lib_collection
+    if lib_collection is None:
+        lib_collection = []
+    return jsonify(lib_collection)
 
 
-@app.route('/book/<id>', methods=['GET'])
-def book(id):
-    if(id) in LIBRARY['books']:
-        # return book info
-        book = LIBRARY['books'][id]
-        return jsonify(**book)
+@app.route('/book/<book_id>', methods=['GET'])
+def books_one(book_id):
+    #resp = links_db.search(where('book_id') == book_id)
+    #books = replay_books(resp)
+    book = filter(lambda d: d['book_id'] == book_id, lib_collection)
+    return jsonify(book)
 
 
-@app.route('/checkouts')
-def checkouts():
-    """return all checkouts"""
-    checkouts = []
-    for c in db['checkouts'].all():
-        book_id = c['book_id']
-        book = LIBRARY['books'][book_id]
-        c['topics'] = book['topics']
-        c['title'] = book['title']
-        checkouts.append(c)
-    return jsonify(checkouts=checkouts)
-
-
-@app.route('/planets/<id>')
-def planet(id):
-    """returns attendee checkout planet info"""
-    # get topic mixtures for books attendee has checked out
-    checkouts = []
-    topic_mixtures = []
-    for checkout in db['checkouts'].all():
-        if checkout['attendee_id'] == id:
-            book_id = checkout['book_id']
-            book = LIBRARY['books'][book_id]
-            topic_mixture = book['topics']
-            topic_mixtures.append(topic_mixture)
-            checkout['topics'] = book['topics']
-            checkout['title'] = book['title']
-            checkouts.append(checkout)
-
-    color = ColorHash(id)
-    topic_mixture = mix_topics(*topic_mixtures)
-    return jsonify(
-        color=color.hex,
-        checkouts=checkouts,
-        topic_mixture=topic_mixture,
-        name=name_from_id(id)
-    )
-
-@app.route('/planets')
-def planets():
-    """returns checkout planet info for all attendees"""
-    planets = defaultdict(lambda: {'topic_mixture': [], 'checkouts': 0})
-    for checkout in db['checkouts'].all():
-        book_id = checkout['book_id']
-        topic_mixture = LIBRARY['books'][book_id]['topics']
-        planets[checkout['attendee_id']]['topic_mixture'].append(topic_mixture)
-        planets[checkout['attendee_id']]['checkouts'] += 1
-
-    for id, d in planets.items():
-        d['topic_mixture'] = mix_topics(*d['topic_mixture'])
-        d['color'] = ColorHash(id).hex
-        d['name'] = name_from_id(id)
-    return jsonify(**planets)
-
-
-@app.route('/planet/<planetid>')
-def planet_page(planetid):
-    """forward to planet page because badge QR codes have this URL embedded in them """
-    return render_template('planet.html', planetid=planetid)
-
-
-@app.route('/addtoplot', methods=['POST'])
-def addtoplot(id):
-    """records a addtoplot for a plot and station"""
-    # save new book ids
+@app.route('/plot/link', methods=['POST'])
+def plot_link():
+    #records a link for a plot and station
     data = request.get_json()
-    db['addtoplots'].append({
+    print(data)
+    links_db.insert({
+        'action': 'link',
         'book_id': data['book_id'],
         'plot_id': data['plot_id'],
         'station_id': data['station_id'],
         'timestamp': data['timestamp']
     })
 
-    if(id) in LIBRARY['books']:
-        # return book info
-        book = LIBRARY['books'][id]
-        return jsonify(**book)
+    resp = plots_db.search(where('plot_id') == data['plot_id'])
+    print(resp)
+    return jsonify({})
 
 
+@app.route('/plot/unlink', methods=['POST'])
+def plot_unlink():
+    #records an unlink for a plot and station
+    data = request.get_json()
+    print(data)
+    links_db.insert({
+        'action': 'unlink',
+        'book_id': data['book_id'],
+        'plot_id': data['plot_id'],
+        'station_id': data['station_id'],
+        'timestamp': data['timestamp']
+    })
+
+    resp = plots_db.search(where('plot_id') == data['plot_id'])
+    print(resp)
+    return jsonify({})
 
 
+app.route('/plot/rename', methods=['POST'])
+def plot_rename():
+    #records a addtoplot for a plot and station
+    # save new book ids
+    data = request.get_json()
+    print(data)
+    plots_db.insert({
+        'plot_id': data['plot_id'],
+        'plot_name': data['plot_name'],
+        'station_id': data['station_id'],
+        'timestamp': data['timestamp']
+    })
 
-@app.route('/plots')
-def plots():
-    """returns checkout planet info for all attendees"""
-    plots = defaultdict(lambda: {'topic_mixture': [], 'checkouts': 0})
-    for checkout in db['checkouts'].all():
-        book_id = checkout['book_id']
-        topic_mixture = LIBRARY['books'][book_id]['topics']
-        plots[checkout['attendee_id']]['topic_mixture'].append(topic_mixture)
-        plots[checkout['attendee_id']]['checkouts'] += 1
-
-    for id, d in plots.items():
-        d['topic_mixture'] = mix_topics(*d['topic_mixture'])
-        d['color'] = ColorHash(id).hex
-        d['name'] = name_from_id(id)
-    return jsonify(**plots)
+    resp = plots_db.search(where('plot_id') == data['plot_id'])
+    print(resp)
+    return jsonify({})
 
 
+def plot_names():
+    #returns all plots & their checkouts
+    result = sorted(plots_db.all(), key=itemgetter('timestamp'), reverse=True)
+
+    plots = {}
+    for r in result:
+        if r['plot_id'] not in plots:
+            plots[r['plot_id']] = r
+    # could there not be some functional way to do this?
+
+    return plots
+
+@app.route('/plot/names')
+def plot_names_route():
+    return jsonify(plot_names())
+
+def replay_plots(links):
+    plots = defaultdict(lambda: defaultdict(dict))
+    plotnames = plot_names()
+
+    # could there not be some functional way to do this?
+
+    # replay the linking/unlinking
+    for l in sorted(links, key=itemgetter('timestamp')):
+        this_pid = l['plot_id']
+        this_bid= l['book_id']
+
+        if(l['action'] == "link"):
+            plots[this_pid]["books"][this_bid] = l
+
+        if(l['action'] == "unlink"):
+            if (this_pid in plots) and (this_bid in plots[this_pid]["books"]):
+                plots[this_pid]["books"].pop(this_bid)
+
+    # add names
+    for pid in plots:
+        if pid in plotnames:
+            plots[pid]["name"] = plotnames[pid]
+
+    # remove 'action' key/value because it's confusing and will always be 'link'
+    for pid in plots:
+        for bid in plots[pid]['books']:
+            plots[pid]['books'][bid].pop('action', None)
+
+    return plots
+
+
+@app.route('/plots/')
+def plot_all_route():
+    resp = links_db.all()
+    return jsonify(replay_plots(resp))
+
+
+@app.route('/plots/<plotid>')
+def plot_books_linked(plotid):
+    resp = links_db.search(where('plot_id') == plotid)
+    return jsonify(replay_plots(resp))
+
+
+def replay_books(links):
+    books = defaultdict(lambda: defaultdict(dict))
+
+    # replay the linking/unlinking
+    for l in sorted(links, key=itemgetter('timestamp')):
+        this_pid = l['plot_id']
+        this_bid= l['book_id']
+
+        if(l['action'] == "link"):
+            books[this_bid]["plots"][this_pid] = l
+
+        if(l['action'] == "unlink"):
+            if (this_bid in books) and (this_pid in books[this_bid]["plots"]):
+                books[this_bid]["plots"].pop(this_pid)
+
+    for bid in books:
+        books[bid]['attributes'] = {}
+
+    for bid in books:
+        for pid in books[bid]['plots']:
+            books[bid]['plots'][pid].pop('action', None)
+
+    return books
+
+
+# this is a public-facing url -- aka printed on the QR code
 @app.route('/plot/<plotid>')
 def plot_page(plotid):
-    """forward to plot page because plot QR codes have this URL embedded in them """
+    #forward to plot page because plot QR codes have this URL embedded in them 
     return render_template('plot.html', plotid=plotid)
 
 
-
-
-
-
-
-@app.route('/books')
-def books():
-    """returns checked-out book ids"""
-    return jsonify(checkouts=list(db['checkouts'].all()))
-
-
-@app.route('/question')
-def question():
-    """returns a question based on what has been checked out"""
-    questions = []
-    for id in set([c['book_id'] for c in db['checkouts'].all()]):
-        book = LIBRARY['books'][id]
-        qs = get_questions(id)
-        questions.extend([{
-            'title': book['title'],
-            'topics': book['topics'],
-            'book_id': id,
-            'question': q
-        } for q in qs])
-    if questions:
-        question = random.choice(questions)
-    else:
-        question = {'question': 'Hmm...', 'title': None}
-    return jsonify(question=question)
-
-
-@app.route('/questions/<id>')
-def questions(id):
-    """returns questions given a book id"""
-    questions = get_questions(id)
-    return jsonify(questions=questions)
-
-
-@app.route('/monuments')
-def monuments():
-    state = db['monuments'].last()
-    if state is None:
-        state = compute_monuments_state([])
-    return jsonify(state=state, names=MONUMENT_NAMES)
-
-
-@app.route('/pp', methods=['GET'])
-def pp():
-    mstate = db['monuments'].last()
-    if mstate is None:
-        mstate = compute_monuments_state([])
-    pp_state = compute_pp_state(mstate)
-    return jsonify(**pp_state)
 
