@@ -169,13 +169,13 @@ def replay_plots(links):
 
 
 
-@app.route('/plots/')
+@app.route('/plot/')
 def plot_all_route():
     resp = links_db.all()
     return jsonify(replay_plots(resp))
 
 
-@app.route('/plots/<plotid>')
+@app.route('/plot/<plotid>')
 def plot_books_linked(plotid):
     resp = links_db.search(where('plot_id') == plotid)
     return jsonify(replay_plots(resp))
@@ -208,7 +208,7 @@ def replay_books(links):
 
 
 # this is a public-facing url -- aka printed on the QR code
-@app.route('/plot/<plotid>')
+@app.route('/plots/<plotid>')
 def plot_page(plotid):
     #forward to plot page because plot QR codes have this URL embedded in them 
     return render_template('plot.html', plotid=plotid)

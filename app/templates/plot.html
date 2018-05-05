@@ -129,9 +129,9 @@ HTML
     </div>
 
 
-    <div class="book" v-for="checkout in plotdata.checkouts" >
+    <div class="book" v-for="book in plotdata.books" >
       <div class="plot">
-        <div class="title">&#8594; <a :href='"/checkout/" + checkout.book_id'>${checkout.title}</a></div>
+        <div class="title">&#8594; <a :href='"/checkout/" + book.book_id'>${book.book_id}</a></div>
       </div>
     </div>
 
@@ -151,7 +151,7 @@ var plotid = "{{plotid}}";  //filled in by Flask
 console.log("plotid: " + plotid);
 var urlHost = window.location.href.split('/').slice(0, 3).join('/');
 var urlHost = "https://library.cybernetics.social";
-var apiURL = urlHost + "/plots/" + plotid;
+var apiURL = urlHost + "/plot/" + plotid;
 app = new Vue({
   el: '#plot_container',
   delimiters: ['${', '}'], // so that it doesn't clash with flask's templating language
@@ -169,7 +169,7 @@ app = new Vue({
       var self = this
       xhr.open('GET', apiURL)
       xhr.onload = function () {
-        self.plotdata = JSON.parse(xhr.responseText);
+        self.plotdata = JSON.parse(xhr.responseText)[plotid];
         console.log("Fetched data.");
         console.log(self.plotdata);
       }
