@@ -98,17 +98,23 @@ def replay_plots(links):
         this_bid= l['book_id']
 
         if(l['action'] == "link"):
-            plots[this_pid]["plots"][this_bid] = l
+            plots[this_pid]["books"][this_bid] = l
 
         if(l['action'] == "unlink"):
-            if (this_pid in plots) and (this_bid in plots[this_pid]["plots"]):
-                plots[this_pid]["plots"].pop(this_bid)
+            if (this_pid in plots) and (this_bid in plots[this_pid]["books"]):
+                plots[this_pid]["books"].pop(this_bid)
 
 
     # add names
     for pid in plots:
         if pid in plotnames:
             plots[pid]["name"] = plotnames[pid]
+
+    # remove 'action' key/value because it's confusing and will always be 'link'
+    for pid in plots:
+        for bid in plots[pid]['books']:
+            plots[pid]['books'][bid].pop('action', None)
+
 
     return plots
 
@@ -141,15 +147,20 @@ def replay_books(links):
                 books[this_bid]["plots"].pop(this_pid)
 
 
-    return books
+    for bid in books:
+        books[bid]['attributes'] = {}
 
+    for bid in books:
+        for pid in books[bid]['plots']:
+            books[bid]['plots'][pid].pop('action', None)
+
+    return books
 
 
 @app.route('/books/', methods=['GET'])
 def books_all():
     resp = links_db.all()
     books = replay_books(resp)
-    map(lambda book: book['attributes'] = {}, books)
     # INSERT POTENTIAL API QUERY FROM LIBRARYTHING HERE
     return jsonify(books)
 
@@ -158,7 +169,6 @@ def books_all():
 def books_one(book_id):
     resp = links_db.search(where('book_id') == book_id)
     books = replay_books(resp)
-    map(lambda book: book['attributes'] = {}, books)
     # INSERT POTENTIAL API QUERY FROM LIBRARYTHING HERE
     return jsonify(books)
 
