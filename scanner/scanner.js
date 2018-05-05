@@ -21,9 +21,12 @@ $(document).ready(function() {
 
 
   function isBook(s) {
-    if (s.match(/\d\d\d\d\d\d\d\d/)) {
-      return true
+    console.log(s);
+    if (s.includes('checkout')) {
+      console.log("BOOK");
+      return true;
     } else {
+      console.log("PLOT");
       return false;
     }
   }
@@ -32,7 +35,7 @@ $(document).ready(function() {
     return !isBook(s);
   }
 
-  function bookUrlToId(s) {
+  function urlToId(s) {
     return s.split("/")[s.split("/").length - 1];
   }
 
@@ -40,35 +43,42 @@ $(document).ready(function() {
     var res = {};
     res.books = {};
     res.names = {};
+    res.type = {};
+
+
     content.forEach(function(d, i) {
       if (isBook(d)) {
-        res.books[bookUrlToId(d)] = d;
+        res.books[urlToId(d)] = d;
+        res.type = "book";
+        console.log(res.type);
       }
       if (isName(d)) {
-        res.names[d] = d;
+        res.names[urlToId(d)] = d;
+        res.type = "name";
+            console.log(res.type);
       }
     });
     return res;
   }
 
   function updateIframe(content) {
-    console.log("I see a QR code");
     var tinycaturl = "https://www.librarycat.org/lib/CyberneticsCon/item/";
 
     var res = parseQR(content);
     window.res = res;
+    //
+    // if (window.res.type = "book") {
+    //   console.log("This is a book");
+    //   objNames = window.res.names;
+    // } else {
+    //   console.log("this is a plot");
+    // }
     // console.log(window.res);
-    objNames = window.res.names;
+
 
     // console.log(objNames);
 
-    if (_.isEmpty({objNames}) == true){
-      console.log("This is a book");
-    } else {
-      console.log("this is a plot");
-      console.log(objNames);
-      console.log("empty???? : " + _.isEmpty({objNames});
-    }
+
 
     // var url = objNames[Object.keys(objNames)[0]];
     // console.log("url: " + url);
