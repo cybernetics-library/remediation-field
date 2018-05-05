@@ -21,7 +21,7 @@ $(document).ready(function() {
 
 
   function isBook(s) {
-    console.log(s);
+    // console.log(s);
     if (s.includes('checkout')) {
       console.log("BOOK");
       return true;
@@ -50,34 +50,20 @@ $(document).ready(function() {
       if (isBook(d)) {
         res.books[urlToId(d)] = d;
         res.type = "book";
-        console.log(res.type);
+        // console.log("url: " + d);
       }
       if (isName(d)) {
         res.names[urlToId(d)] = d;
         res.type = "name";
-            console.log(res.type);
+            // console.log("url: " + d);
       }
     });
+    // console.log(res);
     return res;
   }
 
-  function updateIframe(content) {
+  function updateIframe(content, res) {
     var tinycaturl = "https://www.librarycat.org/lib/CyberneticsCon/item/";
-
-    var res = parseQR(content);
-    window.res = res;
-    //
-    // if (window.res.type = "book") {
-    //   console.log("This is a book");
-    //   objNames = window.res.names;
-    // } else {
-    //   console.log("this is a plot");
-    // }
-    // console.log(window.res);
-
-
-    // console.log(objNames);
-
 
 
     // var url = objNames[Object.keys(objNames)[0]];
@@ -90,10 +76,10 @@ $(document).ready(function() {
     var thisbooks = thisbookids.join("+");
     if ((thisbooks) && (window.prevbooks != thisbooks)) {
 
-      var s = "";
-      s += "\nBOOKs = " + thisbookids.join(", ");
-      s += "\nNAMEs = " + Object.keys(res.names).join(", ");
-      $("#output").html(s);
+      // var s = "";
+      // s += "\nBOOKs = " + thisbookids.join(", ");
+      // s += "\nNAMEs = " + Object.keys(res.names).join(", ");
+      // $("#output").html(s);
 
       // console.log(s);
       $("#iframe").attr("src", "https://www.librarycat.org/lib/CyberneticsCon/item/" + thisbookids[0]);
@@ -113,9 +99,36 @@ $(document).ready(function() {
   let scanner = new Instascan.Scanner({
     video: document.getElementById('preview')
   });
+
   scanner.addListener('scan', function(content) {
-    updateIframe(content);
+    var res = parseQR(content);
+    window.res = res;
+    updateIframe(content, res);
+    var startTime = Date.now();
+    var bookFound = "";
+    var plotFound = "";
+    while ((Date.now() - startTime) < 3000) {
+      if (res.type == "book") {
+        bookFound = res.books;
+        console.log("Only a book was scanned");
+      }
+      if (res.type == "name") {
+        plotFound = res.names;
+        console.log("Only a Plot was scanned");
+      }
+      console.log(bookFound);
+      if (plotFound != "" && bookFound != "") {
+        link();
+      }
+    }
+
+
   });
+
+  function link() {
+    console.log("Link Book to Plot");
+  }
+
   Instascan.Camera.getCameras().then(function(cameras) {
     if (cameras.length > 0) {
       scanner.start(cameras[0]);
