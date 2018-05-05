@@ -37,6 +37,10 @@ app.get('/orrery', function(req, res){
     res.sendFile(__dirname + '/orrery/index.html');
 });
 
+app.get('/plotfields', function(req, res){
+    res.sendFile(__dirname + '/plotfields/index.html');
+});
+
 app.get('/predator_prey', function(req, res){
     res.sendFile(__dirname + '/predator_prey/index.html');
 });

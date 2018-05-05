@@ -9,6 +9,7 @@ module.exports = {
   entry: {
 		earth_bundle: ['./earth/main.js', hotMiddlewareScript],
 		orrery_bundle: ['./orrery/main.js', hotMiddlewareScript],
+		plotfields_bundle: ['./plotfields/main.js', hotMiddlewareScript],
 		predator_prey_bundle: ['./predator_prey/main.js', hotMiddlewareScript],
 		monuments_bundle: ['./monuments/main.js', hotMiddlewareScript],
 		galaxy_bundle: ['./galaxy/main.js', hotMiddlewareScript],
@@ -20,7 +21,8 @@ module.exports = {
     publicPath: '/',
     filename: '[name].js'
   },
-  devtool: 'cheap-module-source-map',
+  devtool: 'eval-source-map', // for dev
+//  devtool: 'cheap-module-source-map',
 //  devtool: 'source-map', //for production?
   module: {
     loaders: [
