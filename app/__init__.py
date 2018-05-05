@@ -18,23 +18,41 @@ links_db = db.table('links')
 Group = Query()
 
 
-# initial Library thing dictionary fetch
-lib_thing = requests.get("http://www.librarything.com/api_getdata.php?userid=cyberneticscon&showstructure=1&max=1000&showTags=10&booksort=title_REV&responseType=json").json()['books']
+def fetch_lib_thing():
+    lib_thing = requests.get("http://www.librarything.com/api_getdata.php?userid=cyberneticscon&showstructure=1&max=1000&showTags=10&booksort=title_REV&showCollections=1&responseType=json").json()['books']
+
+    def merge_dicts(a, b):
+        ab = a.copy()
+        ab.update(b)
+        return ab
+
+    flat_lib_thing = map(lambda x: merge_dicts( {'id':x[0]}, x[1] ), lib_thing.items())
+
+    def filter_dict_list(dictlist, key, value):
+        return filter(lambda d: value in (d[key]).values(), dictlist)
+
+    field_rem = filter_dict_list(flat_lib_thing, 'collections', 'Field Remediations at Queens Museum')
+
+    return field_rem
+
+field_rem = fetch_lib_thing()
+
 
 # fetch from Library Thing, replace global variable & return current dictionary
 @app.route('/lib_thing/fetch')
-def fetch_lib_thing():
-    global lib_thing
-    lib_thing = requests.get("http://www.librarything.com/api_getdata.php?userid=cyberneticscon&showstructure=1&max=1000&showTags=10&booksort=title_REV&responseType=json").json()['books']
-    return jsonify(lib_thing)
+def new_lib_thing():
+    global field_rem
+    field_rem = fetch_lib_thing()
+    return jsonify(field_rem)
+
 
 # return existing Libary Thing dictionary without fetch
 @app.route('/lib_thing/current')
 def current_lib_thing():
-    global lib_thing
-    if lib_thing is None:
-        lib_thing = []
-    return jsonify(lib_thing)
+    global field_rem
+    if field_rem is None:
+        field_rem = []
+    return jsonify(field_rem)
 
 
 @app.route('/plot/link', methods=['POST'])
@@ -124,7 +142,6 @@ def replay_plots(links):
         if(l['action'] == "unlink"):
             if (this_pid in plots) and (this_bid in plots[this_pid]["links"]):
                 plots[this_pid]["links"].pop(this_bid)
-
 
     # add names
     for pid in plots:
