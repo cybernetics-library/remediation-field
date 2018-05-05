@@ -18,6 +18,7 @@ links_db = db.table('links')
 Group = Query()
 
 
+# utility for getting books from library thing and filtering by collection
 def fetch_lib_thing():
     lib_thing = requests.get("http://www.librarything.com/api_getdata.php?userid=cyberneticscon&showstructure=1&max=1000&showTags=10&booksort=title_REV&showCollections=1&responseType=json").json()['books']
 
@@ -35,6 +36,8 @@ def fetch_lib_thing():
 
     return field_rem
 
+
+# run book fetch on startup
 field_rem = fetch_lib_thing()
 
 
@@ -153,20 +156,19 @@ def replay_plots(links):
         for bid in plots[pid]['books']:
             plots[pid]['books'][bid].pop('action', None)
 
-
     return plots
+
 
 @app.route('/plots/')
 def plot_all_route():
     resp = links_db.all()
     return jsonify(replay_plots(resp))
 
+
 @app.route('/plots/<plotid>')
 def plot_books_linked(plotid):
     resp = links_db.search(where('plot_id') == plotid)
     return jsonify(replay_plots(resp))
-
-
 
 
 def replay_books(links):
@@ -216,8 +218,5 @@ def books_one(book_id):
 def plot_page(plotid):
     #forward to plot page because plot QR codes have this URL embedded in them 
     return render_template('plot.html', plotid=plotid)
-
-
-
 
 
