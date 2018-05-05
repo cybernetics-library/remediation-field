@@ -17,45 +17,51 @@ links_db = db.table('links')
 
 Group = Query()
 
+collection = 'Field Remediations at Queens Museum'
 
 # utility for getting books from library thing and filtering by collection
-def fetch_lib_thing():
+def fetch_lib_thing(collection):
     lib_thing = requests.get("http://www.librarything.com/api_getdata.php?userid=cyberneticscon&showstructure=1&max=1000&showTags=10&booksort=title_REV&showCollections=1&responseType=json").json()['books']
 
-    def merge_dicts(a, b):
-        ab = a.copy()
-        ab.update(b)
-        return ab
-
-    flat_lib_thing = map(lambda x: merge_dicts( {'id':x[0]}, x[1] ), lib_thing.items())
+    flat_lib_thing = map(lambda x: x[1], lib_thing.items())
 
     def filter_dict_list(dictlist, key, value):
         return filter(lambda d: value in (d[key]).values(), dictlist)
 
-    field_rem = filter_dict_list(flat_lib_thing, 'collections', 'Field Remediations at Queens Museum')
+    lib_collection = filter_dict_list(flat_lib_thing, 'collections', collection)
 
-    return field_rem
+    return lib_collection
 
 
 # run book fetch on startup
-field_rem = fetch_lib_thing()
+lib_collection = fetch_lib_thing(collection)
 
 
 # fetch from Library Thing, replace global variable & return current dictionary
-@app.route('/lib_thing/fetch')
-def new_lib_thing():
-    global field_rem
-    field_rem = fetch_lib_thing()
-    return jsonify(field_rem)
+@app.route('/fetch_thing', methods=['GET'])
+def fetch_thing():
+    global lib_collection
+    lib_collection = fetch_lib_thing(collection)
+    return jsonify(lib_collection)
 
 
 # return existing Libary Thing dictionary without fetch
-@app.route('/lib_thing/current')
-def current_lib_thing():
-    global field_rem
-    if field_rem is None:
-        field_rem = []
-    return jsonify(field_rem)
+@app.route('/book', methods=['GET'])
+def all_books():
+    #resp = links_db.all()
+    #books = replay_books(resp)
+    global lib_collection
+    if lib_collection is None:
+        lib_collection = []
+    return jsonify(lib_collection)
+
+
+@app.route('/book/<book_id>', methods=['GET'])
+def books_one(book_id):
+    #resp = links_db.search(where('book_id') == book_id)
+    #books = replay_books(resp)
+    book = filter(lambda d: d['book_id'] == book_id, lib_collection)
+    return jsonify(book)
 
 
 @app.route('/plot/link', methods=['POST'])
@@ -186,7 +192,6 @@ def replay_books(links):
             if (this_bid in books) and (this_pid in books[this_bid]["plots"]):
                 books[this_bid]["plots"].pop(this_pid)
 
-
     for bid in books:
         books[bid]['attributes'] = {}
 
@@ -197,26 +202,11 @@ def replay_books(links):
     return books
 
 
-@app.route('/books/', methods=['GET'])
-def books_all():
-    resp = links_db.all()
-    books = replay_books(resp)
-    # INSERT POTENTIAL API QUERY FROM LIBRARYTHING HERE
-    return jsonify(books)
-
-
-@app.route('/books/<book_id>', methods=['GET'])
-def books_one(book_id):
-    resp = links_db.search(where('book_id') == book_id)
-    books = replay_books(resp)
-    # INSERT POTENTIAL API QUERY FROM LIBRARYTHING HERE
-    return jsonify(books)
-
-
 # this is a public-facing url -- aka printed on the QR code
 @app.route('/plot/<plotid>')
 def plot_page(plotid):
     #forward to plot page because plot QR codes have this URL embedded in them 
     return render_template('plot.html', plotid=plotid)
+
 
 
