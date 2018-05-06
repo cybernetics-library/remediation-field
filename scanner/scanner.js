@@ -8,6 +8,8 @@ $(document).ready(function() {
   ];
   var sounds_bell = ["idea.wav"];
 
+  window.prevlink = {};
+
   function hashCode(str) {
     var hash = 0;
     if (str.length == 0) return hash;
@@ -21,15 +23,17 @@ $(document).ready(function() {
 
 
   function isBook(s) {
-    console.log(s);
-    if (s.includes('checkout')) {
-      console.log("BOOK");
+//    console.log(s);
+    if (s.includes('checkout') || s.includes('object')) {
+//      console.log("BOOK");
       return true;
     } else {
-      console.log("PLOT");
+      //console.log("PLOT");
       return false;
     }
   }
+
+  window.isBook = isBook;
 
   function isName(s) {
     return !isBook(s);
@@ -38,6 +42,7 @@ $(document).ready(function() {
   function urlToId(s) {
     return s.split("/")[s.split("/").length - 1];
   }
+  window.urlToId = urlToId;
 
   function parseQR(content) {
     var res = {};
@@ -50,15 +55,70 @@ $(document).ready(function() {
       if (isBook(d)) {
         res.books[urlToId(d)] = d;
         res.type = "book";
-        console.log(res.type);
+//        console.log(res.type);
       }
       if (isName(d)) {
         res.names[urlToId(d)] = d;
         res.type = "name";
-            console.log(res.type);
+//            console.log(res.type);
       }
     });
     return res;
+  }
+
+  function handleScans(content) {
+    /* see what's in the scans, how many we have
+     and decide what to do */
+
+    if(content.length == 2) {
+      if(isBook(content[0]) && isName(content[1])) {  makeLink(content); }
+      if(isBook(content[1]) && isName(content[0])) { makeLink(content);  }
+    }
+  }
+
+  function makeLink(content) {
+    var res = parseQR(content);
+    if(!(_.isEqual(window.prevlink, res))) {
+      window.prevlink = res;
+      console.log(res);
+      console.log("MADEL INK!!!");
+      submitLinkToApi(res);
+    }
+  }
+
+  function submitLinkToApi(res) {
+    //plot/link [POST]: Link a plot to a book. Needs book_id, plot_id, station_id, timestamp.
+    window.restest = res;
+    var bookid = urlToId(res.books[Object.keys(res.books)[0]]);
+    var plotid = urlToId(res.names[Object.keys(res.names)[0]]);
+    var apiurl = "https://library.cybernetics.social/plot/link";
+    var data = {
+      'book_id':  bookid,
+      'plot_id':  plotid,
+      'station_id': "webscanner",
+      'timestamp': new Date().getTime() / 1000
+    };
+    console.log(data);
+    $.ajax({
+      type: "POST",
+      url: apiurl,
+      contentType: "application/json; charset=utf-8",
+      data: JSON.stringify(data),
+      dataType: "json",
+      success: function(res) {
+        console.log(res);
+        console.log("successfully linked!")
+        displayModal()
+      }
+    });
+
+
+
+  }
+
+
+  function displayModal() {
+    $("#link_success").fadeIn(400).delay(2000).fadeOu(300);
   }
 
   function updateIframe(content) {
@@ -114,6 +174,7 @@ $(document).ready(function() {
     video: document.getElementById('preview')
   });
   scanner.addListener('scan', function(content) {
+    handleScans(content)
     updateIframe(content);
   });
   Instascan.Camera.getCameras().then(function(cameras) {

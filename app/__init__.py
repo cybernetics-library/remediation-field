@@ -71,6 +71,7 @@ def books_one(book_id):
 @app.route('/plot/link', methods=['POST'])
 def plot_link():
     #records a link for a plot and station
+    print(request.data)
     data = request.get_json()
     print(data)
     links_db.insert({
