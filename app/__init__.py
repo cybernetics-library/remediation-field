@@ -8,6 +8,8 @@ from collections import defaultdict
 from operator import itemgetter
 import copy
 
+#import cybersym_api
+
 
 app = Flask(__name__)
 app.config['TEMPLATES_AUTO_RELOAD'] = True
@@ -214,4 +216,19 @@ def plot_page(plotid):
     return render_template('plot.html', plotid=plotid)
 
 
+"""
+######### LEGACY API
+cybersym_api.setup()
 
+@app.route('/checkout/<id>', methods=['POST', 'GET'])
+def cybersym_checkout(id):
+    return cybersym_api.checkout(id)
+
+@app.route('/planets/<id>')
+def cybersym_planet(id):
+    return cybersym_api.planet(id)
+
+@app.route('/planets')
+def cybersym_planets(id):
+    return cybersym_api.planets(id)
+"""
