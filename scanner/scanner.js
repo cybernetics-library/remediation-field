@@ -118,7 +118,7 @@ $(document).ready(function() {
 
 
   function displayModal() {
-    $("#link_success").fadeIn(400).delay(2000).fadeOu(300);
+    $("#link_success").fadeIn(400).delay(2000).fadeOut(300);
   }
 
   function updateIframe(content) {
