@@ -133,6 +133,7 @@ class Plotfields {
        v.update(self.planets)
     });
 
+    // TODO: put into this.UI.render() at some point
     if(this.UI.turnOnPlanetFrame == true && this.planetFocusID in this.planets) {
       this.UI.movePlanetFrame({
         obj: this.planets[this.planetFocusID],
