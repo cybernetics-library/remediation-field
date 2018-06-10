@@ -5,3 +5,4 @@ config.codekit
 node_modules
 npm-debug.log
 venv
+.sass-cache
