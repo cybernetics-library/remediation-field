@@ -6,6 +6,10 @@ from flask import Flask, request, jsonify, redirect, render_template
 from flask_cors import CORS
 from collections import defaultdict
 from operator import itemgetter
+import copy
+
+#import cybersym_api
+
 
 app = Flask(__name__)
 app.config['TEMPLATES_AUTO_RELOAD'] = True
@@ -67,6 +71,7 @@ def books_one(book_id):
 @app.route('/plot/link', methods=['POST'])
 def plot_link():
     #records a link for a plot and station
+    print(request.data)
     data = request.get_json()
     print(data)
     links_db.insert({
@@ -141,7 +146,8 @@ def replay_plots(links):
     # could there not be some functional way to do this?
 
     # replay the linking/unlinking
-    for l in sorted(links, key=itemgetter('timestamp')):
+    for link in sorted(links, key=itemgetter('timestamp')):
+        l = copy.deepcopy(link)
         this_pid = l['plot_id']
         this_bid= l['book_id']
 
@@ -165,13 +171,14 @@ def replay_plots(links):
     return plots
 
 
-@app.route('/plots/')
+
+@app.route('/plot/')
 def plot_all_route():
     resp = links_db.all()
     return jsonify(replay_plots(resp))
 
 
-@app.route('/plots/<plotid>')
+@app.route('/plot/<plotid>')
 def plot_books_linked(plotid):
     resp = links_db.search(where('plot_id') == plotid)
     return jsonify(replay_plots(resp))
@@ -181,7 +188,8 @@ def replay_books(links):
     books = defaultdict(lambda: defaultdict(dict))
 
     # replay the linking/unlinking
-    for l in sorted(links, key=itemgetter('timestamp')):
+    for link in sorted(links, key=itemgetter('timestamp')):
+        l = copy.deepcopy(link)
         this_pid = l['plot_id']
         this_bid= l['book_id']
 
@@ -203,10 +211,25 @@ def replay_books(links):
 
 
 # this is a public-facing url -- aka printed on the QR code
-@app.route('/plot/<plotid>')
+@app.route('/plots/<plotid>')
 def plot_page(plotid):
     #forward to plot page because plot QR codes have this URL embedded in them 
     return render_template('plot.html', plotid=plotid)
 
 
+"""
+######### LEGACY API
+cybersym_api.setup()
 
+@app.route('/checkout/<id>', methods=['POST', 'GET'])
+def cybersym_checkout(id):
+    return cybersym_api.checkout(id)
+
+@app.route('/planets/<id>')
+def cybersym_planet(id):
+    return cybersym_api.planet(id)
+
+@app.route('/planets')
+def cybersym_planets(id):
+    return cybersym_api.planets(id)
+"""
