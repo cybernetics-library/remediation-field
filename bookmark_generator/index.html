@@ -2,12 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.2.3/showdown.min.js"></script>
+<link href='https://fonts.googleapis.com/css?family=Roboto+Mono:400,700|Source+Sans+Pro:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/3.4.0/lodash.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prefixfree/1.0.7/prefixfree.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.0.5/vue.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+
 <script src="js/qrcode.min.js"></script>
 
 <script>
@@ -25,17 +26,16 @@ var getUrlValue = function(VarSearch){
 
 </script>
 
-<link rel="stylesheet" type="text/css" href="css/bookmark.css" /> 
+<!--<link rel="stylesheet" href="css/bookmark.css" /> -->
 
 
 <style type="text/css">
 body {
 	margin: 0px;
 	padding: 0px;
-	height: 100%;
+  font-family: 'Roboto Mono';
 }
 .flexcontainer {
-	height:100vh;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -45,6 +45,46 @@ body {
 .centerdiv {
 }
 
+#bookmark {
+  background-image: url("../img/slip_template.svg");
+  background-repeat: no-repeat;
+  height: 960px;
+    width: 400px;
+  position: relative;
+}
+
+.b_elem {
+  position: absolute;
+  display: flex;
+  align-items: left;
+  flex-direction: column;
+  justify-content: center;
+  font-size: 0.9em;
+}
+
+#qrcode * {
+  width: 170px; height: 170px; 
+}
+
+
+#cylibid { top: 168px; left: 55px}
+#cylibid_id { top: 185px; left: 55px; }
+#qrcode { top: 33px; left: 205px}
+#mark-title { top: 271px; left: 50px}
+#mark-authors { top: 385px; left: 50px}
+#mark-publication { top: 477px; left: 50px}
+#mark-source { top: 548px; left: 50px}
+#mark-tags { top: 625px; left: 5px}
+
+#cylibid { text-align: center; width: 100px;}
+#cylibid_id { text-align: center; width: 100px;}
+#mark-title {  height: 115px;  width: 340px;  text-align: left; }
+#mark-authors {  height: 90px;  width: 340px;  text-align: left; }
+#mark-publication {  height: 70px;  width: 340px;  text-align: left; }
+#mark-source {  height: 53px;  width: 340px;  text-align: left; font-size: 0.8em; }
+#mark-tags { width: 140px; height: 260px; font-size: 0.5em; align-items: flex-start; }
+
+
 </style>
 
 <!-- 
@@ -52,7 +92,7 @@ body {
 CUSTOMIZE BELOW
 /////////////// -->
 
-<title>TITLE</title>
+<title>CYBERNETICS LIBRARY BOOKMARK GENERATOR</title>
 
 </head>
 <body>
@@ -61,19 +101,14 @@ CUSTOMIZE BELOW
     <div id="bookmark">
 
       <!-- QRcodes -->
-      <div id="cylibid">CYLIB-ID</div>
-      <div id="cylibid_id">{{ id }}</div>
-      <div id="qrcode"></div>
-
-      <div id="mark-title">{{ title }}</div>
-
-      <div id="mark-authors">{{ authors }}</div>
-
-      <div id="mark-publication">{{ publication }}</div>
-
-      <div id="mark-source">{{ source }}</div>
-
-      <div id="mark-tags">{{ tags }}</div>
+      <div class="b_elem" id="cylibid">CYLIB-ID</div>
+      <div class="b_elem" id="cylibid_id">{{ id }}</div>
+      <div class="b_elem" id="qrcode"></div>
+      <div class="b_elem" id="mark-title">{{ title }}</div>
+      <div class="b_elem" id="mark-authors">{{ authors }}</div>
+      <div class="b_elem" id="mark-publication">{{ publication }}</div>
+      <div class="b_elem" id="mark-source">Inter-Library Loan from the collection of: <br /><b>{{ source }}</b></div>
+      <div class="b_elem" id="mark-tags">{{ tags }}</div>
 
 
 
@@ -86,13 +121,29 @@ CUSTOMIZE BELOW
 <script>
 var bm = new Vue({
   el: '#bookmark',
+  methods: {
+    loadData() {
+      this.$data.id = getUrlValue("bookid");
+
+    }
+  },
   mounted() {
+
+    this.loadData()
+
+
     var qr = new QRCode(document.getElementById("qrcode"), {
       text: "https://library.cybernetics.social/checkout/" + this.$data.id
     });
 
     console.log(this.$data.id);
     console.log("dho");
+
+
+
+    console.log($(".b_elem" ));
+//    $(".b_elem" ).draggable();
+
   },
   data: {
     id: 147800304,
