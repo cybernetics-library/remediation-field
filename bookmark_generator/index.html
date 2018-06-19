@@ -39,7 +39,7 @@ body {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	flex-direction: row;
+	flex-direction:row;
 }
 
 .centerdiv {
@@ -85,6 +85,11 @@ body {
 #mark-tags { width: 140px; height: 260px; font-size: 0.5em; align-items: flex-start; }
 
 
+.booklist {
+    height: 50vh;
+    overflow: auto;
+}
+
 </style>
 
 <!-- 
@@ -96,19 +101,20 @@ CUSTOMIZE BELOW
 
 </head>
 <body>
-<div class="flexcontainer">
+  <div class="flexcontainer" id="app">
+    <collection-selector :collections="collections"></collection-selector>
+    <book-selector :books="books" v-on:bookid-change=onBookidChange></book-selector>
 	<div class="centerdiv">
     <div id="bookmark">
-
-      <!-- QRcodes -->
+      {{thisbook.bookid}}
       <div class="b_elem" id="cylibid">CYLIB-ID</div>
-      <div class="b_elem" id="cylibid_id">{{ id }}</div>
+      <div class="b_elem" id="cylibid_id">{{ thisbook.bookid }}</div>
       <div class="b_elem" id="qrcode"></div>
-      <div class="b_elem" id="mark-title">{{ title }}</div>
-      <div class="b_elem" id="mark-authors">{{ authors }}</div>
-      <div class="b_elem" id="mark-publication">{{ publication }}</div>
-      <div class="b_elem" id="mark-source">Inter-Library Loan from the collection of: <br /><b>{{ source }}</b></div>
-      <div class="b_elem" id="mark-tags">{{ tags }}</div>
+      <div class="b_elem" id="mark-title">{{ thisbook.title }}</div>
+      <div class="b_elem" id="mark-authors">{{ thisbook.authors }}</div>
+      <div class="b_elem" id="mark-publication">{{ thisbook.publication }}</div>
+      <div class="b_elem" id="mark-source">Inter-Library Loan from the collection of: <br /><b>{{ thisbook.source }}</b></div>
+      <div class="b_elem" id="mark-tags">{{ thisbook.tags }}</div>
 
 
 
@@ -119,12 +125,87 @@ CUSTOMIZE BELOW
 	</div>
 </div>
 <script>
+
+var cs = Vue.component('collection-selector', {
+props: ["collections"],
+data: function () {
+  return {
+    count: 0,
+    collections: []
+  }
+},
+methods: {
+  collinc: function(inc) {
+    this.count += inc;
+    this.count += Object.keys(this.collections).length;
+    this.count %= Object.keys(this.collections).length;
+  }
+},
+template: `
+<div>
+  <div><button v-on:click=collinc(-1)>^</button><button v-on:click="collinc(1)">v</button></div>
+  <div v-for="(value, key, index) in collections">
+  <div v-if="index == count"><b>{{value}}</b></div>
+  <div v-else>{{value}}</div>
+  </div>
+</div>  `
+})
+
+
+var cs = Vue.component('book-selector', {
+props: ["books"],
+data: function () {
+  return {
+    count: 0,
+    books: []
+  }
+},
+methods: {
+  bookinc: function(inc) {
+    this.count += inc;
+    this.count += Object.keys(this.books).length;
+    this.count %= Object.keys(this.books).length;
+    this.$emit('bookid-change', Object.keys(this.books)[this.count])
+  }
+},
+template: `
+<div class="book-selector">
+  <div class="selector"><button v-on:click="bookinc(-1)">^</button><button v-on:click="bookinc(1)">v</button></div>
+  <div class ="booklist">
+    <div class="book" v-for="(value, key, index) in books">
+      <template v-if="index == count"><b>{{value.title}}</b></template>
+      <template v-else>{{value.title}}</template>
+    </div>
+  </div>
+</div>  `
+})
+
+
 var bm = new Vue({
-  el: '#bookmark',
+  el: '#app',
   methods: {
     loadData() {
-      this.$data.id = getUrlValue("bookid");
+      var self = this;
+      self.$data.id = getUrlValue("bookid");
 
+      
+      var apiurl = "http://www.librarything.com/api_getdata.php?userid=cyberneticscon&showstructure=1&max=1000&showTags=10&booksort=title_REV&showCollections=1";
+
+      $.ajax({
+        type: 'GET',
+        url: apiurl,
+        dataType: 'jsonp',
+        success: function(d) {
+          self.$data.books = d.books;
+          self.$data.collections = _.reduce(_.map(d.books, 'collections'), function(tot, current) { return _.assign(tot, current) }, {})
+          console.log(d);
+        }
+      });
+
+    },
+    onBookidChange(bookid) {
+      console.log(bookid);
+      this.thisbook = this.books[bookid];
     }
   },
   mounted() {
@@ -146,12 +227,16 @@ var bm = new Vue({
 
   },
   data: {
-    id: 147800304,
-    title: "Radical reconstruction",
-    authors: "Woods, Lebbeus",
-    publication: "New York : Princeton Architectural Press, c1997.",
-    tags: "Architecture and society, Architecture--Philosophy, Architecture, Philosophy",
-    source: "David Hecht"
+    thisbook: {
+      bookid: 147800304,
+      title: "Radical reconstruction",
+      author: "Woods, Lebbeus",
+      publication: "New York : Princeton Architectural Press, c1997.",
+      tags: "Architecture and society, Architecture--Philosophy, Architecture, Philosophy",
+      source: "David Hecht",
+    },
+    collections: [],
+    books: []
   }
 })
 </script>
