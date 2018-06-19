@@ -122,7 +122,7 @@ $(document).ready(function() {
     $("#link_success").fadeIn(400).delay(2000).fadeOut(300);
   }
 
-  function updateIframe(content) {
+  function updateIframe(content,res) {
     var tinycaturl = "https://www.librarycat.org/lib/CyberneticsCon/item/";
 
 
@@ -130,7 +130,7 @@ $(document).ready(function() {
     // console.log("url: " + url);
 
     ///////////////////////////////////////
-
+    var res = parseQR(content);
     var thisbookids = Object.keys(res.books).sort()
 
     var thisbooks = thisbookids.join("+");
