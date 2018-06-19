@@ -4,10 +4,12 @@
 <meta charset="utf-8"/>
 <link href='https://fonts.googleapis.com/css?family=Roboto+Mono:400,700|Source+Sans+Pro:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/3.4.0/lodash.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.10/lodash.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prefixfree/1.0.7/prefixfree.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.0.5/vue.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.4.1/jspdf.debug.js" integrity="sha384-THVO/sM0mFD9h7dfSndI6TS0PgAGavwKvB5hAxRRvc0o9cPLohB0wb/PTA7LdUHs" crossorigin="anonymous"></script>
+
 
 <script src="js/qrcode.min.js"></script>
 
@@ -87,7 +89,25 @@ body {
 
 .booklist {
     height: 50vh;
+    font-size: 0.8em;
+    width: 400px;
     overflow: auto;
+}
+
+.book {
+	border: 1px solid gray;
+	cursor: pointer;
+}
+
+#loadinggif {
+  position: absolute;
+    z-index: 100;
+      color: red;
+        display:none;
+}
+
+.loading #loadinggif {
+  display: block !important;
 }
 
 </style>
@@ -102,16 +122,17 @@ CUSTOMIZE BELOW
 </head>
 <body>
   <div class="flexcontainer" id="app">
-    <collection-selector :collections="collections"></collection-selector>
-    <book-selector :books="books" v-on:bookid-change=onBookidChange></book-selector>
+    <!--<collection-selector :collections="collections"></collection-selector>-->
+    <book-selector :books="books" :thisbookid="thisbook.bookid" v-on:bookid-change=onBookidChange></book-selector>
+    <save-pdf></save-pdf>
 	<div class="centerdiv">
-    <div id="bookmark">
-      {{thisbook.bookid}}
+    <div id="bookmark" v-bind:class="{ loading: isLoading}">
+      <div id="loadinggif">LOADING<img src="img/loading.webp" />LOADING</div>
       <div class="b_elem" id="cylibid">CYLIB-ID</div>
       <div class="b_elem" id="cylibid_id">{{ thisbook.bookid }}</div>
       <div class="b_elem" id="qrcode"></div>
       <div class="b_elem" id="mark-title">{{ thisbook.title }}</div>
-      <div class="b_elem" id="mark-authors">{{ thisbook.authors }}</div>
+      <div class="b_elem" id="mark-authors">{{ thisbook.author }}</div>
       <div class="b_elem" id="mark-publication">{{ thisbook.publication }}</div>
       <div class="b_elem" id="mark-source">Inter-Library Loan from the collection of: <br /><b>{{ thisbook.source }}</b></div>
       <div class="b_elem" id="mark-tags">{{ thisbook.tags }}</div>
@@ -125,7 +146,7 @@ CUSTOMIZE BELOW
 	</div>
 </div>
 <script>
-
+/*
 var cs = Vue.component('collection-selector', {
 props: ["collections"],
 data: function () {
@@ -150,30 +171,27 @@ template: `
   </div>
 </div>  `
 })
-
+*/
 
 var cs = Vue.component('book-selector', {
-props: ["books"],
+props: ["books", "thisbookid"],
 data: function () {
   return {
     count: 0,
-    books: []
+    books: [],
+    thisbookid: 0
   }
 },
 methods: {
-  bookinc: function(inc) {
-    this.count += inc;
-    this.count += Object.keys(this.books).length;
-    this.count %= Object.keys(this.books).length;
-    this.$emit('bookid-change', Object.keys(this.books)[this.count])
-  }
+  booktitleclick: function(bookid) {
+    this.$emit('bookid-change', bookid)
+  },
 },
 template: `
 <div class="book-selector">
-  <div class="selector"><button v-on:click="bookinc(-1)">^</button><button v-on:click="bookinc(1)">v</button></div>
   <div class ="booklist">
-    <div class="book" v-for="(value, key, index) in books">
-      <template v-if="index == count"><b>{{value.title}}</b></template>
+    <div class="book" v-for="(value, key, index) in books" v-on:click="booktitleclick(key)">
+      <template v-if="key == thisbookid"><b>{{value.title}}</b></template>
       <template v-else>{{value.title}}</template>
     </div>
   </div>
@@ -181,24 +199,67 @@ template: `
 })
 
 
+
+var cs = Vue.component('save-pdf', {
+data: function () {
+  return {
+  }
+},
+methods: {
+  savebookmarkpdf: function() {
+
+		console.log("SAVING BOOKMARK AS PDF");
+
+		var pdf = new jsPDF('p', 'pt', 'letter');
+		pdf.canvas.height = 72 * 8.5;
+		pdf.canvas.width = 72 * 35;
+
+// TODO: fix this
+		pdf.fromHTML($("#bookmark").html(), 15, 15, {}, function() {
+				pdf.save('web.pdf');
+		});
+
+  },
+},
+template: `
+<div class="save-pdf">
+	<button v-on:click="savebookmarkpdf">Save As PDF</button>
+</div>  `
+})
+
+
 var bm = new Vue({
   el: '#app',
   methods: {
-    loadData() {
+    downloadData() {
       var self = this;
       self.$data.id = getUrlValue("bookid");
+      var collectionid =  getUrlValue("collectionid");
 
-      
+
+/*
       var apiurl = "http://www.librarything.com/api_getdata.php?userid=cyberneticscon&showstructure=1&max=1000&showTags=10&booksort=title_REV&showCollections=1";
-
       $.ajax({
         type: 'GET',
         url: apiurl,
         dataType: 'jsonp',
         success: function(d) {
+          self.$data.books = d.data.collection;
           self.$data.books = d.books;
           self.$data.collections = _.reduce(_.map(d.books, 'collections'), function(tot, current) { return _.assign(tot, current) }, {})
           console.log(d);
+        }
+      }); 
+ */
+
+      var apiurl = "https://wrapapi.com/use/provolot/cyberlib/bookcollection/0.0.1?wrapAPIKey=tvvfebqLhJs8Ie9CIwlWB49SDsSdEjEA&collectionid=" + collectionid;
+
+       $.ajax({
+        type: 'GET',
+        url: apiurl,
+        success: function(d) {
+          self.$data.books = _.keyBy(d.data.collection, 'bookid');
+          self.$data.isLoading = false;
         }
       });
 
@@ -209,34 +270,34 @@ var bm = new Vue({
     }
   },
   mounted() {
+    this.downloadData()
+    this.qr = new QRCode(document.getElementById("qrcode"));
+  },
+  updated() {
 
-    this.loadData()
+    this.qr.clear();
+    this.qr.makeCode("https://library.cybernetics.social/checkout/" + this.$data.thisbook.bookid);
 
+//    console.log(this.$data.id);
+//    console.log("dho");
 
-    var qr = new QRCode(document.getElementById("qrcode"), {
-      text: "https://library.cybernetics.social/checkout/" + this.$data.id
-    });
-
-    console.log(this.$data.id);
-    console.log("dho");
-
-
-
-    console.log($(".b_elem" ));
+//    console.log($(".b_elem" ));
 //    $(".b_elem" ).draggable();
 
   },
   data: {
     thisbook: {
-      bookid: 147800304,
-      title: "Radical reconstruction",
-      author: "Woods, Lebbeus",
-      publication: "New York : Princeton Architectural Press, c1997.",
-      tags: "Architecture and society, Architecture--Philosophy, Architecture, Philosophy",
-      source: "David Hecht",
+      bookid: 0,
+      title: "LOADING LOADING LOADING",
+      author: "LOADING, LOADING",
+      publication: "LOADING: LOADING LOADING, 2018",
+      tags: "LOADING AND LOAIDNG",
+      source: "LOADING LOADING",
     },
     collections: [],
-    books: []
+    books: [],
+    isLoading: true,
+    qrcode: null
   }
 })
 </script>
