@@ -34,11 +34,17 @@
   #preview {
     width: 385px;
     height: 385px;
-    /* border-radius: 100%; */
     filter: grayscale(100%);
-    border: 20px solid green;
-    border-image-source: linear-gradient(rgb(204, 236, 220), grey); 
-    border-image-slice: 20;
+  }
+
+  .arrows {
+    width: 397px;
+    height: 397px;
+    z-index: 1000;
+    position: absolute;
+    left: 50%;
+    top: 7.2%;
+    margin-left: -199px;
   }
 
   .video-circle {
@@ -47,7 +53,9 @@
   }
 
 
-  .centerdiv {}
+  .centerdiv {
+        text-align: center;
+  }
 
   iframe {
     background: linear-gradient(180deg, rgb(204, 236, 220) 0%, rgb(204, 236, 220) 0%, rgba(95, 0, 143, 1) 100%);
@@ -60,7 +68,7 @@
     /* text-align: center; */
   }
 
-  img {
+  .logo {
     width: 157px;
     position: absolute;
     margin-left: 2em;
@@ -82,10 +90,12 @@
 </style>
 
 <body>
-  <img src="cybernetics_library.png"></img>
+  <img class="logo" src="assets/cybernetics_library.png"></img>
   <div class="flexcontainer">
     <div class="centerdiv">
+            <img src="assets/logo_arrows.png" class="arrows">
       <video id="preview" class="video-circle"></video>
+
       <h3>Scan Books, Objects, and Plot Markers here!</h3>
       <h3>Scan an Object or Book <i>with</i> a Plot Marker to add it to a Plot</h3>
     </div>
