@@ -262,7 +262,7 @@ var bm = new Vue({
       self.$data.id = getUrlValue("bookid");
       var collectionid =  getUrlValue("collectionid");
 
-      $.getJSON('/json/' + collectionid + '.json', function(d) {
+      $.getJSON('./json/' + collectionid + '.json', function(d) {
           self.$data.books = _.keyBy(d.data.collection, 'bookid');
           self.$data.isLoading = false;
       });
