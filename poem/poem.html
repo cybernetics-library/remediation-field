@@ -7,6 +7,8 @@
 <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.10/lodash.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.0.5/vue.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+
 
 <script src="./js/tracery.min.js"></script>
 <script src="./js/poemgenerator.js"></script>
@@ -77,6 +79,8 @@ CUSTOMIZE BELOW
 <body>
   <div class="flexcontainer" id="app">
 	<div class="centerdiv">
+    <svg width="960" height="600"></svg>
+
     <div id="poem" v-bind:class="{ loading: isLoading}">
       POEM: {{poem}}
 
@@ -105,13 +109,13 @@ var vueapp = new Vue({
       var API_SERVER = "https://library.cybernetics.social";
 
       var dumpPromise = $.get(API_SERVER + '/memories/dump', function(d) {
-          self.$data.rawdata = d;
-          self.$data.themedata = _.groupBy(d, "theme");
-          self.$data.isLoading = false;
+          self.rawdata = d;
+          self.themedata = _.groupBy(d, "theme");
+          self.isLoading = false;
 			});
 
 			var bookPromise = $.get(API_SERVER + '/book', function(d) {
-          self.$data.bookdata = _.keyBy(d, 'book_id');
+          self.bookdata = _.keyBy(d, 'book_id');
 			});
 
 			Promise.all([dumpPromise, bookPromise]).then(function(values) {
@@ -121,7 +125,7 @@ var vueapp = new Vue({
     },
 		createPoem() {
 			console.log("create poem here");
-      this.$data.poem = poemgen.createPoem({memories: this.$data.rawdata, books: this.$data.bookdata});
+      this.poem = poemgen.createPoem({memories: this.rawdata, books: this.bookdata});
 		}
   },
   mounted() {
