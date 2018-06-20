@@ -125,8 +125,7 @@ $('body').on('my-event', function(e) {
 });
 
 $(document).ready(function(){
-    var socket = io.connect('http://localhost:8082/refresh');
-console.log("connecting");
+    var socket = io.connect('http://library.cybernetics.social/refresh');
     socket.on('refresh', function(msg) {
 				alert("fresh");
     });
