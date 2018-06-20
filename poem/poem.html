@@ -12,6 +12,8 @@
 
 <script src="./js/tracery.min.js"></script>
 <script src="./js/poemgenerator.js"></script>
+<script src="./js/poemgraph.js"></script>
+<script src="./js/story.js"></script>
 
 
 
@@ -34,6 +36,18 @@ var getUrlValue = function(VarSearch){
 
 
 <style type="text/css">
+
+.links line {
+    stroke: #999;
+        stroke-opacity: 0.6;
+        stroke-width: 1.5px;
+}
+
+.nodes circle {
+    stroke: #fff;
+        stroke-width: 1.5px;
+}
+
 body {
 	margin: 0px;
 	padding: 0px;
@@ -126,6 +140,7 @@ var vueapp = new Vue({
 		createPoem() {
 			console.log("create poem here");
       this.poem = poemgen.createPoem({memories: this.rawdata, books: this.bookdata});
+      poemgraph.makeGraph(this.rawdata);
 		}
   },
   mounted() {
@@ -140,6 +155,7 @@ var vueapp = new Vue({
 			console.log("got a message that we should refresh!");
 			location.reload();
     });
+
   },
   updated() {
   },
