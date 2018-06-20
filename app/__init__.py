@@ -251,7 +251,7 @@ def cybersym_planets(id):
 @app.route('/connect_book_to_memory', methods=['POST'])
 def connect_book_to_memory():
     print(request.data)
-    data = request.get_json()
+    data = request.get_json(force=True)
     print(data)
     # bookid, memorystring, theme)
     memories_db.insert({
