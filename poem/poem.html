@@ -8,6 +8,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.0.5/vue.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
 
+<script src="./js/tracery.min.js"></script>
+<script src="./js/poemgenerator.js"></script>
+
 
 
 <script>
@@ -75,12 +78,15 @@ CUSTOMIZE BELOW
   <div class="flexcontainer" id="app">
 	<div class="centerdiv">
     <div id="poem" v-bind:class="{ loading: isLoading}">
-      POEM
+      POEM: {{poem}}
       BUT THIS IS THE RAW DATA
 
       <div v-for="(thisthemedata, thistheme, themeindex) in themedata">
-        <b>## {{thistheme}}:</b>
-        <div v-for="(thismemory, index) in thisthemedata">{{thismemory.memory}}</div>
+        <b>i dream of my {{thistheme}}:</b>
+        <div v-for="(thismemory, index) in thisthemedata">
+					<span class="memory">we think of {{thismemory.memory}}</span>
+					<span class="book_id">{{thismemory.book_id}}</span>
+				</div>
       </div>
 
     </div>
@@ -98,23 +104,26 @@ var vueapp = new Vue({
 
       var API_SERVER = "https://library.cybernetics.social";
 
-      $.get(API_SERVER + '/memories/by/theme', function(d) {
-          self.$data.themedata = d;
+      $.get(API_SERVER + '/memories/dump', function(d) {
+          self.$data.rawdata = d;
+          self.$data.themedata = _.groupBy(d, "theme");
           self.$data.isLoading = false;
-      });
+				});
     },
-    onBookidChange(bookid) {
-      console.log(bookid);
-      this.thisbook = this.books[bookid];
-    }
+		createPoem() {
+			console.log("create poem here");
+			this.$data.poem = poemgen.createPoem(this.$data.rawdata)
+		}
   },
   mounted() {
 		var self = this;
     this.downloadData();
+		this.createPoem();
     this.socket = io.connect('http://library.cybernetics.social/socket');
     this.socket.on('newdata', function(msg) {
 			console.log("got a message that there's new data!");
 			self.downloadData();
+			self.createPoem();
     });
     this.socket.on('refresh', function(msg) {
 			console.log("got a message that we should refresh!");
@@ -126,7 +135,9 @@ var vueapp = new Vue({
   data: {
     isLoading: true,
     qrcode: null,
-    themedata: null
+    themedata: null,
+		rawdata: null,
+		poem: null
   }
 })
 
