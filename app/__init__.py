@@ -265,5 +265,10 @@ def connect_book_to_memory():
 
     return jsonify({})
 
+@app.route('/memories/dump')
+def get_memories_dump():
+    resp = memories_db.all()
+    return jsonify(resp)
+
 
 
