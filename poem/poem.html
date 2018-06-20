@@ -45,15 +45,20 @@ var getUrlValue = function(VarSearch){
 
 .nodes circle {
         stroke-width: 1.5px;
-          opacity: 1;
+          opacity: 0.5;
            fill: url(#grad2);
 }
 
 .nodes text{
-  font: 10px "Roboto Mono";
+  font: 8px "Roboto Mono";
     text-anchor: middle;
 
   fill: #000;
+}
+
+.memory {
+  font-size: 12px !important;
+  fill: magenta;
 }
 
 body {
@@ -99,17 +104,19 @@ CUSTOMIZE BELOW
 </head>
 
 <body>
-   <svg id="d3svg" width="960" height="600">
+  <div class="flexcontainer" id="app">
+	<div class="centerdiv">
+   <svg id="d3svg" width="600" height="600">
      <defs>
        <radialGradient id="grad2" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
 
-         <stop offset="0%" style="stop-color:rgb(0,0,255);stop-opacity:0.5" />
+         <stop offset="0%" style="stop-color:rgb(0,0,0);stop-opacity:0.1" />
+         <stop offset="10%" style="stop-color:rgb(0,0,255);stop-opacity:0.2" />
+         <stop offset="50%" style="stop-color:rgb(25,100,255);stop-opacity:0.3" />
          <stop offset="100%" style="stop-color:rgb(255,255,255);stop-opacity:0" />
        </radialGradient>
      </defs>
    </svg>
-  <div class="flexcontainer" id="app">
-	<div class="centerdiv">
     <!--<poem-graph :graphdata="graphdata" inline-template>-->
      <!--<div id="poem-graph">-->
       <!--<svg id="poem-graph-svg" pointer-events="all" viewBox="0 0 360 300" preserveAspectRatio="xMinYMin meet">-->

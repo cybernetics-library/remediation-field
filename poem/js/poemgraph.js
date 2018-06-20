@@ -23,7 +23,13 @@ poemgraph.graphDataFromRawData = function(rawdata, bookdata) {
 
 
   graph.nodes = _.map(_.uniq( _.concat(_.map(vueapp.rawdata, 'book_id'), _.map(vueapp.rawdata, 'memory_to'), _.map(vueapp.rawdata, 'memory_from'))), function(d) {
-      return { 'id': d, 'name': d };
+      var thisname;
+      if(d in bookdata) {
+        return { 'id': d, 'name': bookdata[d].title, 'type': 'book'};
+      }
+      else {
+        return { 'id': d, 'name': d, 'type': 'memory'};
+      }
   });
 
   return graph;
@@ -45,7 +51,11 @@ poemgraph.makeGraph = function(rawdata, bookdata) {
   var color = d3.scaleOrdinal(d3.schemeCategory20);
 
   var simulation = d3.forceSimulation()
-      .force("link", d3.forceLink().id(function(d) { return d.id; }))
+      .force("link", d3.forceLink()
+          .id(function(d) { return d.id; })
+         // .distance(function(d) {return d.distance;})
+          .strength(0.05)
+      )
       .force("charge", d3.forceManyBody())
       .force("center", d3.forceCenter(width / 2, height / 2));
 
@@ -69,14 +79,14 @@ poemgraph.makeGraph = function(rawdata, bookdata) {
                       .on("end", dragended));
 
       node.append('circle')
-          .attr("r", 50)
+          .attr("r", 100)
 //          .attr("fill", function(d) { return color(d.group); })
     
       node.append("text")
         .attr("dx", 12)
         .attr("dy", ".35em")
-
-          .text(function(d) { return d.name; });
+        .attr("class", function(d) { return d.type; })
+        .text(function(d) { return d.name; });
 
 
     
