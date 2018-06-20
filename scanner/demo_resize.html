@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.4.0/lodash.min.js"></script>
+  <title>Cybernetics Library Scanner</title>
+  <script type="text/javascript" src="instascan.min.js"></script>
+  <script type="text/javascript" src="scanner.js"></script>
+</head>
+<style>
+  body {
+    margin: 0px;
+    padding: 0px;
+    height: 100%;
+    background-color: rgb(204, 236, 220);
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  }
+
+  .steps {
+      font-family: 'Steps-Mono';
+  }
+
+  .flexcontainer {
+    height: fit-content;
+    margin-top: 3em;
+    display: flex;
+    /* align-items: center; this aligns vertically*/
+    justify-content: center;
+    flex-direction: row;
+  }
+
+  #preview {
+    width: 385px;
+    height: 385px;
+    filter: grayscale(100%);
+  }
+
+  .arrows {
+    width: 397px;
+    height: 397px;
+    z-index: 1000;
+    position: absolute;
+    left: 50%;
+    top: 4.4%;
+    margin-left: -199px;
+  }
+  .arrow90 {
+    /* width: 497px;
+    height: 497px; */
+    width: 54%;
+    height: 51%;
+  }
+
+  .arrow_orange{
+    /* width: 597px;
+    height: 597px; */
+    width: 40%;
+height: 65%;
+  }
+
+  .video-circle {
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+
+  .centerdiv {
+        text-align: center;
+  }
+
+  iframe {
+    background: linear-gradient(180deg, rgb(204, 236, 220) 0%, rgb(204, 236, 220) 0%, rgba(95, 0, 143, 1) 100%);
+  }
+
+  h3 {
+    background-color: rgb(230, 230, 230);
+    /* font-weight: 400; */
+    width: 424px;
+    /* text-align: center; */
+  }
+
+  .logo {
+    width: 157px;
+    position: absolute;
+    margin-left: 2em;
+  }
+
+
+  #link_success {
+  position: fixed;
+    left: 30px;
+    background-color: lightyellow;
+    padding: 33px;
+    width: 40vw;
+    left: 30vw;
+    top: 35vh;
+    border: 10px solid lightblue;
+    font-weight: bold;
+    text-align: center;
+  }
+</style>
+
+<body>
+  <img class="logo" src="assets/cybernetics_library.png"></img>
+  <div class="flexcontainer">
+    <div class="centerdiv">
+            <img src="assets/logo_arrows.png" class="arrows">
+            <img src="assets/arrow90b.png" class="arrows arrow90">
+              <img src="assets/arrowr.png" class="arrows arrow_orange">
+      <video id="preview" class="video-circle"></video>
+
+      <!-- <h3>Scan Books, Objects, and Plot Markers here!</h3>
+      <h3>Scan an Object or Book <i>with</i> a Plot Marker to add it to a Plot</h3> -->
+    </div>
+  </div>
+
+  <!-- <div id="output"></div> -->
+  <iframe width="100%" height="1400px" id="iframe" allowtransparency="true" frameborder="0"></iframe>
+
+  <div style="display:none;" id="link_success">you have successfully linked an object/book with a plot.</div>
+
+</body>
+
+</html>
