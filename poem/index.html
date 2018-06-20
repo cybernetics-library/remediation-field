@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<style>
+body {
+	margin: 0px;
+	padding: 0px;
+  font-family: 'Roboto Mono';
+}
+#flexcontainer {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction:row;
+  align-content: stretch;
+    height: 100vh;
+    width: 100vw;
+
+
+}
+
+iframe {
+flex-grow: 1;
+	height:100%;
+    margin: none;
+    padding: none;
+    border: none;
+}
+
+.poem {
+	width: 100px !important;
+}
+</style>
+</head>
+<body>
+  <div id="flexcontainer">
+		<iframe class="poem" src="poem.html"></iframe>
+		<iframe class="scanner" src="https://library.cybernetics.social/scanner/"></iframe>
+  </div>
+</body>
+</html>
