@@ -23,7 +23,8 @@ db = TinyDB('data/db.json')
 plots_db = db.table('plots')
 links_db = db.table('links')
 
-memories_tinydb = TinyDB('data/memories_db.json')
+memories_tinydb = TinyDB('data/memories_db.json', indent=4, separators=(',', ': '))
+
 memories_db = memories_tinydb.table('memories')
 
 Group = Query()

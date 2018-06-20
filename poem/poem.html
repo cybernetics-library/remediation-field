@@ -108,22 +108,21 @@ var vueapp = new Vue({
           self.$data.rawdata = d;
           self.$data.themedata = _.groupBy(d, "theme");
           self.$data.isLoading = false;
+					self.createPoem();
 				});
     },
 		createPoem() {
 			console.log("create poem here");
-			this.$data.poem = poemgen.createPoem(this.$data.rawdata)
+			this.$data.poem = poemgen.createPoem(this.$data.rawdata);
 		}
   },
   mounted() {
 		var self = this;
     this.downloadData();
-		this.createPoem();
     this.socket = io.connect('http://library.cybernetics.social/socket');
     this.socket.on('newdata', function(msg) {
 			console.log("got a message that there's new data!");
 			self.downloadData();
-			self.createPoem();
     });
     this.socket.on('refresh', function(msg) {
 			console.log("got a message that we should refresh!");
