@@ -270,5 +270,18 @@ def get_memories_dump():
     resp = memories_db.all()
     return jsonify(resp)
 
+@app.route('/memories/by/<bykey>')
+def get_memories_by(bykey):
+    print(bykey)
+    data = memories_db.all()
+
+    if(bykey not in data[0]):
+        return jsonify({ "error": "key does not exist in db!" })
+    else:
+        res = defaultdict(list)
+        for d in data:
+            res[d[bykey]].append(d)
+        return jsonify(res)
+
 
 
