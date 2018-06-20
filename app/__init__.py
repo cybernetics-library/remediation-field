@@ -49,6 +49,16 @@ def fetch_thing():
     return jsonify(lib_collection)
 
 
+
+@app.route('/collection_from_libthing', defaults={'collectionid': 'all'})
+@app.route('/collection_from_libthing/<collectionid>')
+def collection_from_libthing(collectionid):
+    collectionurl = "https://www.librarything.com/catalog_bottom.php?view=CyberneticsCon&printable=1&collectionid=" + collectionid
+    print(collectionurl)
+    lib_thing = requests.get(collectionurl)
+    print(lib_thing)
+
+
 # return existing Libary Thing dictionary without fetch
 @app.route('/book', methods=['GET'])
 def all_books():
