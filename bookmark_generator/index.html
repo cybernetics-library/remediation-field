@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
+<script src="js/artoo-latest.min.js"></script>
 <link href='https://fonts.googleapis.com/css?family=Roboto+Mono:400,700|Source+Sans+Pro:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.10/lodash.min.js"></script>
@@ -153,14 +154,9 @@ CUSTOMIZE BELOW
       <div class="b_elem" id="mark-publication">{{ thisbook.publication }}</div>
       <div class="b_elem" id="mark-source">Inter-Library Loan from the collection of: <br /><b>{{ thisbook.fromwhere}}</b></div>
       <div class="b_elem" id="mark-tags">{{ thisbook.tags }}</div>
-
-
-
     </div>
-
-
-
 	</div>
+
 </div>
 <script>
 /*
@@ -259,28 +255,19 @@ var bm = new Vue({
   el: '#app',
   methods: {
     downloadData() {
+
+
+
       var self = this;
       self.$data.id = getUrlValue("bookid");
       var collectionid =  getUrlValue("collectionid");
 
-
+      $.getJSON('/json/' + collectionid + '.json', function(d) {
+          self.$data.books = _.keyBy(d.data.collection, 'bookid');
+          self.$data.isLoading = false;
+      });
 /*
-      var apiurl = "http://www.librarything.com/api_getdata.php?userid=cyberneticscon&showstructure=1&max=1000&showTags=10&booksort=title_REV&showCollections=1";
-      $.ajax({
-        type: 'GET',
-        url: apiurl,
-        dataType: 'jsonp',
-        success: function(d) {
-          self.$data.books = d.data.collection;
-          self.$data.books = d.books;
-          self.$data.collections = _.reduce(_.map(d.books, 'collections'), function(tot, current) { return _.assign(tot, current) }, {})
-          console.log(d);
-        }
-      }); 
- */
-
       var apiurl = "https://wrapapi.com/use/provolot/cyberlib/bookcollection/0.0.1?wrapAPIKey=tvvfebqLhJs8Ie9CIwlWB49SDsSdEjEA&collectionid=" + collectionid;
-
        $.ajax({
         type: 'GET',
         url: apiurl,
@@ -289,7 +276,7 @@ var bm = new Vue({
           self.$data.isLoading = false;
         }
       });
-
+*/
     },
     onBookidChange(bookid) {
       console.log(bookid);
