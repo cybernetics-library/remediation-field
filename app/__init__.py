@@ -19,6 +19,9 @@ db = TinyDB('data/db.json')
 plots_db = db.table('plots')
 links_db = db.table('links')
 
+memories_tinydb = TinyDB('data/memories_db.json')
+memories_db = memories_tinydb.table('memories')
+
 Group = Query()
 
 collection = 'Field Remediations at Queens Museum'
@@ -243,3 +246,24 @@ def cybersym_planet(id):
 def cybersym_planets(id):
     return cybersym_api.planets(id)
 """
+
+
+@app.route('/connect_book_to_memory', methods=['POST'])
+def connect_book_to_memory():
+    print(request.data)
+    data = request.get_json()
+    print(data)
+    # bookid, memorystring, theme)
+    memories_db.insert({
+        'action': 'connect',
+        'book_id': data['book_id'],
+        'memory': data['memory'],
+        'theme': data['theme'],
+        'station_id': data['station_id'],
+        'timestamp': data['timestamp']
+    })
+
+    return jsonify({})
+
+
+
