@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<link href='https://fonts.googleapis.com/css?family=Roboto+Mono:400,700|Source+Sans+Pro:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.10/lodash.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.0.5/vue.min.js"></script>
+
+
+
+<script>
+var getUrlValue = function(VarSearch){
+    var SearchString = window.location.search.substring(1);
+    var VariableArray = SearchString.split('&');
+    for(var i = 0; i < VariableArray.length; i++){
+        var KeyValuePair = VariableArray[i].split('=');
+        if(KeyValuePair[0] === VarSearch){
+            return KeyValuePair[1];
+        }
+    }
+}
+
+
+</script>
+
+<!--<link rel="stylesheet" href="css/bookmark.css" /> -->
+
+
+<style type="text/css">
+body {
+	margin: 0px;
+	padding: 0px;
+  font-family: 'Roboto Mono';
+}
+.flexcontainer {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction:row;
+}
+
+.centerdiv {
+}
+
+#bookmark {
+  background-repeat: no-repeat;
+    width: 400px;
+  position: relative;
+}
+
+.b_elem {
+  position: absolute;
+  display: flex;
+  align-items: left;
+  flex-direction: column;
+  justify-content: center;
+  font-size: 0.9em;
+}
+
+
+</style>
+
+<!-- 
+///////////////
+CUSTOMIZE BELOW
+/////////////// -->
+
+<title>UNCOMPUTABLE POEM</title>
+
+</head>
+
+<body>
+  <div class="flexcontainer" id="app">
+	<div class="centerdiv">
+    <div id="poem" v-bind:class="{ loading: isLoading}">
+      POEM
+      BUT THIS IS THE RAW DATA
+
+      <div v-for="(thisthemedata, thistheme, themeindex) in themedata">
+        <b>## {{thistheme}}:</b>
+        <div v-for="(thismemory, index) in thisthemedata">{{thismemory.memory}}</div>
+      </div>
+
+    </div>
+	</div>
+
+</div>
+<script>
+
+
+var vueapp = new Vue({
+  el: '#app',
+  methods: {
+    downloadData() {
+      var self = this;
+
+      var API_SERVER = "https://library.cybernetics.social"
+
+      $.get(API_SERVER + '/memories/by/theme', function(d) {
+          self.$data.themedata = d;
+          self.$data.isLoading = false;
+      });
+    },
+    onBookidChange(bookid) {
+      console.log(bookid);
+      this.thisbook = this.books[bookid];
+    }
+  },
+  mounted() {
+    this.downloadData();
+  },
+  updated() {
+  },
+  data: {
+    isLoading: true,
+    qrcode: null,
+    themedata: null
+  }
+})
+
+$('body').on('my-event', function(e) {
+    alert("Hello, World! Message received!");
+});
+</script>
+</body>
+</html>
+
+
+
+
