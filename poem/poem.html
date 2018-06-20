@@ -38,14 +38,22 @@ var getUrlValue = function(VarSearch){
 <style type="text/css">
 
 .links line {
-    stroke: #999;
+ //   stroke: #999;
         stroke-opacity: 0.6;
         stroke-width: 1.5px;
 }
 
 .nodes circle {
-    stroke: #fff;
         stroke-width: 1.5px;
+          opacity: 1;
+           fill: url(#grad2);
+}
+
+.nodes text{
+  font: 10px "Roboto Mono";
+    text-anchor: middle;
+
+  fill: #000;
 }
 
 body {
@@ -91,9 +99,27 @@ CUSTOMIZE BELOW
 </head>
 
 <body>
+   <svg id="d3svg" width="960" height="600">
+     <defs>
+       <radialGradient id="grad2" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+
+         <stop offset="0%" style="stop-color:rgb(0,0,255);stop-opacity:0.5" />
+         <stop offset="100%" style="stop-color:rgb(255,255,255);stop-opacity:0" />
+       </radialGradient>
+     </defs>
+   </svg>
   <div class="flexcontainer" id="app">
 	<div class="centerdiv">
-    <svg width="960" height="600"></svg>
+    <!--<poem-graph :graphdata="graphdata" inline-template>-->
+     <!--<div id="poem-graph">-->
+      <!--<svg id="poem-graph-svg" pointer-events="all" viewBox="0 0 360 300" preserveAspectRatio="xMinYMin meet">-->
+          <!--<g :id="nodes"></g>-->
+          <!--<g :id="links"></g>-->
+        <!--</group>-->
+      <!--</svg>-->
+    <!--</div>-->
+   <!--</poem-graph>-->
+
 
     <div id="poem" v-bind:class="{ loading: isLoading}">
       POEM: {{poem}}
@@ -112,6 +138,89 @@ CUSTOMIZE BELOW
 
 </div>
 <script>
+
+
+
+
+
+
+
+
+var cs = Vue.component('poem-graph', {
+props: ["graphdata"],
+data: function() {
+	return {
+    graphdata: {
+    },
+		settings: {
+			svgWidth: 960,
+			svgHeight: 600
+		}
+	}
+},
+methods: {
+},
+mounted: function() {
+  this.color = d3.scaleOrdinal(d3.schemeCategory20);
+
+  this.simulation = d3.forceSimulation(this.graphdata.nodes)
+                        .force("link", d3.forceLink(this.graphdata.links).distance(100).strength(0.1))
+                        .force("charge", d3.forceManyBody())
+                        .force("center", d3.forceCenter(this.settings.svgWidth / 2, this.settings.svgHeight / 2));
+
+},
+computed: {
+  nodes: function() {
+		var that = this;
+			if (that.graphdata.nodes) {
+				return d3.select("svg").append("g")
+					.attr("class", "nodes")
+					.selectAll("circle")
+					.data(that.graphdata.nodes)
+					.enter().append("circle")
+					.attr("r", 20)
+					.attr("fill", function (d ,i) {
+							return that.color(i);
+					})
+					.call(d3.drag()
+							.on("start", function dragstarted(d) {
+									if (!d3.event.active) that.simulation.alphaTarget(0.3).restart();
+									d.fx = d.x;
+									d.fy = d.y;
+							})
+							.on("drag", function dragged(d) {
+									d.fx = d3.event.x;
+									d.fy = d3.event.y;
+							})
+							.on("end", function dragended(d) {
+									if (!d3.event.active) that.simulation.alphaTarget(0);
+									d.fx = null;
+									d.fy = null;
+							}));
+		}
+
+  },
+  links: function () {
+      var that = this;
+      if (that.graphdata.links) {
+          return d3.select("svg").append("g")
+              .attr("class", "linksv2")
+              .selectAll("line")
+              .data(that.graphdata.links)
+              .enter().append("line")
+              .attr("stroke-width", function (d) { return Math.sqrt(d.value); });
+      }
+  }
+}
+})
+
+
+
+
+
+
+
+
 
 
 var vueapp = new Vue({
@@ -139,8 +248,9 @@ var vueapp = new Vue({
     },
 		createPoem() {
 			console.log("create poem here");
+      this.graphdata = poemgraph.graphDataFromRawData(this.rawdata, this.bookdata);
       this.poem = poemgen.createPoem({memories: this.rawdata, books: this.bookdata});
-      poemgraph.makeGraph(this.rawdata);
+      poemgraph.makeGraph(this.rawdata, this.bookdata);
 		}
   },
   mounted() {
@@ -161,11 +271,11 @@ var vueapp = new Vue({
   },
   data: {
     isLoading: true,
-    qrcode: null,
     themedata: null,
-		rawdata: null,
+		rawdata: {},
 		poem: null,
-		bookdata: null
+		bookdata: {},
+    graphdata: {},
   }
 })
 
