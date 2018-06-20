@@ -276,7 +276,9 @@ def connect_book_to_memory():
 @app.route('/memories/dump')
 def get_memories_dump():
     resp = memories_db.all()
-    return jsonify(resp)
+    sorteddump = sorted(resp, key=lambda k: k['timestamp']) 
+
+    return jsonify(sorteddump)
 
 @app.route('/memories/by/<bykey>')
 def get_memories_by(bykey):
