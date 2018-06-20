@@ -23,7 +23,7 @@ db = TinyDB('data/db.json')
 plots_db = db.table('plots')
 links_db = db.table('links')
 
-memories_tinydb = TinyDB('data/memories_db.json', indent=4, separators=(',', ': '))
+memories_tinydb = TinyDB('data/memories_db.json', indent=4)
 
 memories_db = memories_tinydb.table('memories')
 
@@ -57,7 +57,6 @@ def fetch_thing():
     return jsonify(lib_collection)
 
 
-"""
 @app.route('/collection_from_libthing', defaults={'collectionid': 'all'})
 @app.route('/collection_from_libthing/<collectionid>')
 def collection_from_libthing(collectionid):
@@ -65,7 +64,6 @@ def collection_from_libthing(collectionid):
     print(collectionurl)
     lib_thing = requests.get(collectionurl)
     print(lib_thing)
-"""
 
 # return existing Libary Thing dictionary without fetch
 @app.route('/book', methods=['GET'])
@@ -281,6 +279,21 @@ def get_memories_dump():
 
     return jsonify(sorteddump)
 
+@app.route('/memories/unique')
+def get_memories_unique():
+    resp = memories_db.all()
+    dump = sorted(resp, key=lambda k: k['timestamp']) 
+    memories_to = list(set([m['memory_to'] for m in dump]))
+    memories_from = list(set([m['memory_from'] for m in dump]))
+
+    returndata = {}
+    returndata['memories_to'] = memories_to
+    returndata['memories_from'] = memories_from
+    returndata['memories_all'] = list(set(memories_from + memories_to))
+
+    return jsonify(returndata)
+
+    
 @app.route('/memories/by/<bykey>')
 def get_memories_by(bykey):
     print(bykey)
