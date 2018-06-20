@@ -7,6 +7,8 @@ from flask_cors import CORS
 from collections import defaultdict
 from operator import itemgetter
 import copy
+from flask_socketio import SocketIO, emit, send
+
 
 #import cybersym_api
 
@@ -14,6 +16,8 @@ import copy
 app = Flask(__name__)
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 CORS(app)
+socketio = SocketIO(app)
+
 
 db = TinyDB('data/db.json')
 plots_db = db.table('plots')
@@ -265,6 +269,7 @@ def connect_book_to_memory():
         'timestamp': data['timestamp']
     })
 
+    socketio.emit('newdata', {}, namespace="/newdata")
     return jsonify({})
 
 @app.route('/memories/dump')
@@ -286,4 +291,8 @@ def get_memories_by(bykey):
         return jsonify(res)
 
 
+@app.route('/refresh')
+def refresh():
+    socketio.emit('refresh', {}, namespace="/refresh")
+    return jsonify({})
 
