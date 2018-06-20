@@ -104,16 +104,24 @@ var vueapp = new Vue({
 
       var API_SERVER = "https://library.cybernetics.social";
 
-      $.get(API_SERVER + '/memories/dump', function(d) {
+      var dumpPromise = $.get(API_SERVER + '/memories/dump', function(d) {
           self.$data.rawdata = d;
           self.$data.themedata = _.groupBy(d, "theme");
           self.$data.isLoading = false;
-					self.createPoem();
-				});
+			});
+
+			var bookPromise = $.get(API_SERVER + '/book', function(d) {
+          self.$data.bookdata = _.keyBy(d, 'book_id');
+			});
+
+			Promise.all([dumpPromise, bookPromise]).then(function(values) {
+          self.createPoem();
+			});
+
     },
 		createPoem() {
 			console.log("create poem here");
-			this.$data.poem = poemgen.createPoem(this.$data.rawdata);
+      this.$data.poem = poemgen.createPoem({memories: this.$data.rawdata, books: this.$data.bookdata});
 		}
   },
   mounted() {
@@ -136,7 +144,8 @@ var vueapp = new Vue({
     qrcode: null,
     themedata: null,
 		rawdata: null,
-		poem: null
+		poem: null,
+		bookdata: null
   }
 })
 

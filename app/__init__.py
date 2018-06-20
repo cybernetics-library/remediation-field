@@ -29,7 +29,7 @@ memories_db = memories_tinydb.table('memories')
 
 Group = Query()
 
-collection_name = 'Uncomputable'
+collection_name = 'Your library'
 
 # utility for getting books from library thing and filtering by collection
 def fetch_lib_thing(collection_name):
