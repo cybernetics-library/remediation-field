@@ -29,35 +29,35 @@ memories_db = memories_tinydb.table('memories')
 
 Group = Query()
 
-collection = 'Field Remediations at Queens Museum'
+collection_name = 'Uncomputable'
 
 # utility for getting books from library thing and filtering by collection
-def fetch_lib_thing(collection):
+def fetch_lib_thing(collection_name):
     lib_thing = requests.get("http://www.librarything.com/api_getdata.php?userid=cyberneticscon&showstructure=1&max=1000&showTags=10&booksort=title_REV&showCollections=1&responseType=json").json()['books']
 
-    flat_lib_thing = map(lambda x: x[1], lib_thing.items())
+    flat_lib_thing = [v for k,v in lib_thing.items()]
 
     def filter_dict_list(dictlist, key, value):
-        return filter(lambda d: value in (d[key]).values(), dictlist)
+        return [d for d in dictlist if value in d[key].values()]
 
-    lib_collection = filter_dict_list(flat_lib_thing, 'collections', collection)
+    lib_collection = filter_dict_list(flat_lib_thing, 'collections', collection_name)
 
     return lib_collection
 
 
 # run book fetch on startup
-lib_collection = fetch_lib_thing(collection)
+lib_collection = fetch_lib_thing(collection_name)
 
 
 # fetch from Library Thing, replace global variable & return current dictionary
 @app.route('/fetch_thing', methods=['GET'])
 def fetch_thing():
     global lib_collection
-    lib_collection = fetch_lib_thing(collection)
+    lib_collection = fetch_lib_thing(collection_name)
     return jsonify(lib_collection)
 
 
-
+"""
 @app.route('/collection_from_libthing', defaults={'collectionid': 'all'})
 @app.route('/collection_from_libthing/<collectionid>')
 def collection_from_libthing(collectionid):
@@ -65,7 +65,7 @@ def collection_from_libthing(collectionid):
     print(collectionurl)
     lib_thing = requests.get(collectionurl)
     print(lib_thing)
-
+"""
 
 # return existing Libary Thing dictionary without fetch
 @app.route('/book', methods=['GET'])
