@@ -264,7 +264,8 @@ def connect_book_to_memory():
     memories_db.insert({
         'action': 'connect',
         'book_id': data['book_id'],
-        'memory': data['memory'],
+        'memory_from': data['memory_from'],
+        'memory_to': data['memory_to'],
         'theme': data['theme'],
         'station_id': data['station_id'],
         'timestamp': data['timestamp']

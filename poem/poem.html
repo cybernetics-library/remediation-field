@@ -84,7 +84,8 @@ CUSTOMIZE BELOW
       <div v-for="(thisthemedata, thistheme, themeindex) in themedata">
         <b>i dream of my {{thistheme}}:</b>
         <div v-for="(thismemory, index) in thisthemedata">
-					<span class="memory">we think of {{thismemory.memory}}</span>
+					<span class="memory_from">we think of {{thismemory.memory_from}}</span>
+					<span class="memory_to">we think of {{thismemory.memory_to}}</span>
 					<span class="book_id">{{thismemory.book_id}}</span>
 				</div>
       </div>
