@@ -6,10 +6,15 @@ poemgen.createPoem = function(data) {
   var s = ""
   var thismem = _.sample(data.memories)
   console.log(thismem);
+
+  var poemarr = []
+  var poems = ""
+  
   for(let i = 0; i < 20; i++) {
 
     //s += thismem.memory + " -- " + thismem.book_id + "(" + data.books[thismem.book_id]['title'] + ", "
-    s += thismem.memory_from + " -> "
+    poemarr.push(thismem.memory_from)
+    s += thismem.memory_from + ", "
     if(i % 2 == 0) {
       var other_memories_by_same_book = _.filter(data.memories, {book_id:thismem.book_id})
       thismem = _.sample(other_memories_by_same_book)
@@ -17,11 +22,19 @@ poemgen.createPoem = function(data) {
       var other_memories_by_same_memory= _.filter(data.memories, {memory:thismem.memory_from})
       thismem = _.sample(other_memories_by_same_memory)
     }
-    if(thismem === undefined) { break; thismem = _.sample(data.memories); }
+    if(thismem === undefined) {
+      s += ";\n"
+       thismem = _.sample(data.memories);
+    }
+    if(poemarr.length == 2) {
+      poems += poemgen.tracepoem(poemarr) + "<br />";
+      poemarr = [];
+    }
   }
 
   console.log(s);
-  return s +poemgen.tracery()
+  return poems;
+//  return s;
 }
 
 poemgen.tracery = function(data) {
@@ -29,6 +42,29 @@ poemgen.tracery = function(data) {
     return poemgen.grammar.flatten("#greeting#");
 }
 
+poemgen.boo = function() {
+  console.log("Fdfsd");
+}
+
+poemgen.tracepoem = function(poemarr) {
+  console.log(poemarr);
+  var narrator= poemarr[0]
+  var subject  = poemarr[1]
+  var grammarSource = {
+    "narrator": poemarr[0],
+    "subject": poemarr[1],
+    "wonderadj": "quiet|solemn|contemplative|still|tender".split("|"),
+    "name": "fire|bother|wonder|winter".split("|"),
+    "verbs": "dances around|thinks about|touches with|dreams of".split("|"),
+    "poem": "#wonderadj# #narrator# #verbs# #subject#"
+  }
+  return tracery.createGrammar(grammarSource).flatten("#poem#");
+}
+
+poemgen.grammarSource = {
+  "name": "fire|bother|wonder|winter".split("|"),
+  "greeting": "hi #name#, how are you?"
+}
 poemgen.boo = function() {
   console.log("Fdfsd");
 }
