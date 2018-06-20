@@ -17,11 +17,23 @@ poemgen.createPoem = function(data) {
       var other_memories_by_same_memory= _.filter(data.memories, {memory:thismem.memory_from})
       thismem = _.sample(other_memories_by_same_memory)
     }
+    if(thismem === undefined) { break; thismem = _.sample(data.memories); }
   }
 
-  return s
+  console.log(s);
+  return s +poemgen.tracery()
+}
+
+poemgen.tracery = function(data) {
+    poemgen.grammar = tracery.createGrammar(poemgen.grammarSource);
+    return poemgen.grammar.flatten("#greeting#");
 }
 
 poemgen.boo = function() {
   console.log("Fdfsd");
+}
+
+poemgen.grammarSource = {
+  "name": "fire|bother|wonder|winter".split("|"),
+  "greeting": "hi #name#, how are you?"
 }
