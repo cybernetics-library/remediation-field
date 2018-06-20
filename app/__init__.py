@@ -269,7 +269,7 @@ def connect_book_to_memory():
         'timestamp': data['timestamp']
     })
 
-    socketio.emit('newdata', {}, namespace="/newdata")
+    socketio.emit('newdata', {}, namespace="/socket")
     return jsonify({})
 
 @app.route('/memories/dump')
@@ -293,6 +293,6 @@ def get_memories_by(bykey):
 
 @app.route('/refresh')
 def refresh():
-    socketio.emit('refresh', {}, namespace="/refresh")
+    socketio.emit('refresh', {}, namespace="/socket")
     return jsonify({})
 
