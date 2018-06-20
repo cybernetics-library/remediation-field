@@ -96,7 +96,7 @@ var vueapp = new Vue({
     downloadData() {
       var self = this;
 
-      var API_SERVER = "https://library.cybernetics.social"
+      var API_SERVER = "https://library.cybernetics.social";
 
       $.get(API_SERVER + '/memories/by/theme', function(d) {
           self.$data.themedata = d;
@@ -115,6 +115,10 @@ var vueapp = new Vue({
     this.socket.on('newdata', function(msg) {
 			console.log("got a message that there's new data!");
 			self.downloadData();
+    });
+    this.socket.on('refresh', function(msg) {
+			console.log("got a message that we should refresh!");
+			location.reload();
     });
   },
   updated() {
