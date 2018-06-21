@@ -56,12 +56,15 @@ poemgen.tracepoem = function(poemarr) {
     "name": "fire|bother|wonder|winter".split("|"),
     "earlylate": "early |late |mid-".split("|"),
     "season": "autumn|summer|fall|winter".split("|"),
-    "verbs": "dances|thinks|touches|dreams|hesitates|".split("|"),
+    "seasonornot": "|in #earlylate##season#,".split("|"),
+    "adverbs": "briskly|tartly|simply|harshly|fuzzily|freely|ably|copiously|furtively|endlessly|sarcastically|generatively|slowly|distinctly".split("|"),
+    "adverbornot": "|#adverbs#".split("|"),
+    "verbs": "dances|thinks|touches|dreams|hesitates|loves|feels|wanders|does|sits|reads|looks|runs|asks|collapses|chats|donates|instantiates".split("|"),
     "preposition": "around|about|with|of|to|from".split("|"),
-    "lineending": ['','',',',';','--','.'],
+    "lineending": ['',',',';','--','.'],
     "thisa": "a|this|that||||one|our|their".split("|"),
-    "poemline1": "#thisa# #adj# #memory1# #verbs# #preposition# #memory2##lineending#",
-    "poemline2": "in #earlylate##season#, #memory1# #verbs# #preposition# #memory2##lineending#",
+    "poemline1": "#thisa# #adj# #memory1# #adverbornot# #verbs# #preposition# #memory2##lineending#",
+    "poemline2": "#seasonornot# #memory1# and #memory2# #adverbornot# #verbs##lineending#",
     "poem": "#poemline1#|#poemline2#".split("|")
   }
   return tracery.createGrammar(grammarSource).flatten("#poem#");
