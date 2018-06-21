@@ -306,7 +306,7 @@ var vueapp = new Vue({
 		var self = this;
     this.downloadData();
     Gradients.transitionGradients();
-    this.socket = io.connect('http://library.cybernetics.social/socket');
+    this.socket = io.connect('https://library.cybernetics.social/socket');
     this.socket.on('newdata', function(msg) {
 			console.log("got a message that there's new data!");
 			self.downloadData();

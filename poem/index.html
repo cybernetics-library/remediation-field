@@ -43,7 +43,7 @@ flex: 1;
 
 <script>
 $(document).ready(function() {
-    this.socket = io.connect('http://library.cybernetics.social/socket');
+    this.socket = io.connect('https://library.cybernetics.social/socket');
     this.socket.on('refresh', function(msg) {
 			console.log("got a message that we should refresh!");
 			location.reload();
