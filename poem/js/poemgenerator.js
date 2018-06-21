@@ -10,7 +10,7 @@ poemgen.createPoem = function(data) {
   var poemarr = []
   var poems = ""
   
-  for(let i = 0; i < 20; i++) {
+  for(let i = 0; i < 10; i++) {
 
     //s += thismem.memory + " -- " + thismem.book_id + "(" + data.books[thismem.book_id]['title'] + ", "
     poemarr.push(thismem.memory_from)
@@ -33,7 +33,7 @@ poemgen.createPoem = function(data) {
   }
 
   console.log(s);
-  return poems;
+  return poems.replace(/[^a-zA-Z0-9]+$/g, "") + ".";
 //  return s;
 }
 
@@ -53,10 +53,11 @@ poemgen.tracepoem = function(poemarr) {
   var grammarSource = {
     "narrator": poemarr[0],
     "subject": poemarr[1],
-    "wonderadj": "quiet|solemn|contemplative|still|tender".split("|"),
+    "wonderadj": "quiet|solemn|contemplative|still|tender|harmonious".split("|"),
     "name": "fire|bother|wonder|winter".split("|"),
     "verbs": "dances around|thinks about|touches with|dreams of".split("|"),
-    "poem": "#wonderadj# #narrator# #verbs# #subject#"
+    "lineending": ['','',',',';','--','.'],
+    "poem": "#wonderadj# #narrator# #verbs# #subject##lineending#"
   }
   return tracery.createGrammar(grammarSource).flatten("#poem#");
 }
