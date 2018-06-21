@@ -577,20 +577,6 @@ def connect_book_to_memory():
     socketio.emit('newdata', {}, namespace="/socket")
     return jsonify({})
 
-@app.route('/poem/save', methods=['POST'])
-def save_poem():
-    if (request.is_json):
-        data = request.get_json(force=True)
-    else:
-        data = {k:v for k, v in request.form.items()}
-
-    poems_db.insert({
-        'poem_text': 'poem_text',
-        'timestamp': data['timestamp']
-    })
-
-    return jsonify({})
-
 @app.route('/memories/dump')
 def get_memories_dump():
     resp = memories_db.all()
