@@ -81,6 +81,9 @@ body {
 }
 
 .centerdiv {
+      position: relative;
+            z-index: 100;
+
 }
 
 #bookmark {
@@ -302,10 +305,12 @@ var vueapp = new Vue({
   mounted() {
 		var self = this;
     this.downloadData();
+    Gradients.transitionGradients();
     this.socket = io.connect('http://library.cybernetics.social/socket');
     this.socket.on('newdata', function(msg) {
 			console.log("got a message that there's new data!");
 			self.downloadData();
+      Gradients.transitionGradients();
     });
     this.socket.on('refresh', function(msg) {
 			console.log("got a message that we should refresh!");
