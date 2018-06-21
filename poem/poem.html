@@ -15,6 +15,8 @@
 <script src="./js/poemgraph.js"></script>
 <script src="./js/story.js"></script>
 <script src="./js/gradientGenerator.js"></script>
+<script src="./js/gradientGenerator.js"></script>
+<script src="./js/Gradients.js"></script>
 
 
 
@@ -100,6 +102,29 @@ body {
         text-align: center;
     }
 
+
+.backgrounds {
+    -webkit-transition: opacity 1s ease-in-out;
+    -moz-transition: opacity 1s ease-in-out;
+    -o-transition: opacity 1s ease-in-out;
+    transition: opacity 1s ease-in-out;
+    opacity: 0.6;
+}
+
+.background {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    margin: 0px;
+    padding: 0px;
+    height: 100%;
+    width: 100%;
+/*    transition: opacity 1s; */
+}
+#background-over { z-index: 20; }
+#background-under { z-index: 10; }
+
+
 </style>
 
 <!-- 
@@ -150,6 +175,12 @@ CUSTOMIZE BELOW
 
     </div>
 	</div>
+
+    <div class="backgrounds">
+        <div id="background-over" class="background"></div>
+        <div id="background-under" class="background"></div>
+    </div>
+
 
 </div>
 <script>
