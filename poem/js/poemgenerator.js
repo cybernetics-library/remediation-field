@@ -42,22 +42,27 @@ poemgen.tracery = function(data) {
     return poemgen.grammar.flatten("#greeting#");
 }
 
-poemgen.boo = function() {
-  console.log("Fdfsd");
-}
 
 poemgen.tracepoem = function(poemarr) {
   console.log(poemarr);
   var narrator= poemarr[0]
   var subject  = poemarr[1]
   var grammarSource = {
-    "narrator": poemarr[0],
-    "subject": poemarr[1],
+    "memory1": poemarr[0],
+    "memory2": poemarr[1],
     "wonderadj": "quiet|solemn|contemplative|still|tender|harmonious".split("|"),
+    "tensionadj": "trembling|buzzing|vibrating|swirling".split("|"),
+    "adj": "#wonderadj#|#tensionadj#".split("|"),
     "name": "fire|bother|wonder|winter".split("|"),
-    "verbs": "dances around|thinks about|touches with|dreams of".split("|"),
+    "earlylate": "early |late |mid-".split("|"),
+    "season": "autumn|summer|fall|winter".split("|"),
+    "verbs": "dances|thinks|touches|dreams|hesitates|".split("|"),
+    "preposition": "around|about|with|of|to|from".split("|"),
     "lineending": ['','',',',';','--','.'],
-    "poem": "#wonderadj# #narrator# #verbs# #subject##lineending#"
+    "thisa": "a|this|that||||one|our|their".split("|"),
+    "poemline1": "#thisa# #adj# #memory1# #verbs# #preposition# #memory2##lineending#",
+    "poemline2": "in #earlylate##season#, #memory1# #verbs# #preposition# #memory2##lineending#",
+    "poem": "#poemline1#|#poemline2#".split("|")
   }
   return tracery.createGrammar(grammarSource).flatten("#poem#");
 }
