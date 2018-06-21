@@ -282,7 +282,7 @@ def save_poem():
         data = {k:v for k, v in request.form.items()}
 
     poems_db.insert({
-        'poem': 'poem',
+        'poem': data['poem'],
         'timestamp': data['timestamp']
     })
 
