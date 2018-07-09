@@ -33,7 +33,10 @@ poemgen.createPoem = function(data) {
   }
 
   console.log(s);
-  return poems.replace(/[^a-zA-Z0-9]+$/g, "") + ".";
+  poems = poems.replace(/[^a-zA-Z0-9]+$/g, "") + ".";
+  poems = poems.replace(/--$/g, "") + ".";
+  poems = poems.replace(/;$/g, "") + ".";
+  return poems;
 //  return s;
 }
 
