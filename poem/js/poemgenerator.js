@@ -27,15 +27,20 @@ poemgen.createPoem = function(data) {
        thismem = _.sample(data.memories);
     }
     if(poemarr.length == 2) {
-      poems += poemgen.tracepoem(poemarr) + "<br />";
+      poems += poemgen.tracepoem(poemarr).trim() + "\n"
       poemarr = [];
     }
   }
 
-  console.log(s);
-  poems = poems.replace(/[^a-zA-Z0-9]+$/g, "") + ".";
-  poems = poems.replace(/--$/g, "") + ".";
-  poems = poems.replace(/;$/g, "") + ".";
+  console.log(poems);
+  window.poems = poems;
+//  poems = poems.replace(/[^a-zA-Z0-9]+$/, "X") + ".";
+  poems = poems.replace(/--(\s)+$/, "");
+  poems = poems.replace(/.(\s)+$/, "");
+  poems = poems.replace(/;(\s)+$/, "");
+  poems += ".";
+  poems = poems.replace(/\n/g, "<br />\n");
+  console.log(poems);
   return poems;
 //  return s;
 }
