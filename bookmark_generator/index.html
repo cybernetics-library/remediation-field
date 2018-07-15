@@ -254,6 +254,38 @@ template: `
 var bm = new Vue({
   el: '#app',
   methods: {
+    downloadDataWithCors() {
+			var self = this;
+			var corsproxyurl = "https://cors-anywhere.herokuapp.com/";
+			var libthingurl = "http://www.librarything.com/catalog_bottom.php?view=CyberneticsCon&collection=510245&printable=1";
+			var geturl = corsproxyurl + libthingurl;
+			$.get(geturl, function(d) {
+					var allbooks = [];
+					var dom_nodes = $($.parseHTML(d));
+					var books = dom_nodes.find("tr.cat_catrow");
+					books.each(function(i, d) {
+							var thisbook = {};
+							thisbook.title = $(d).find('.lt-title').html();
+							if(thisbook.title) {	thisbook.title = thisbook.title.replace(/&nbsp;/gi,''); }
+							thisbook.author = $(d).find('.lt-author').html();
+							if(thisbook.author) {	thisbook.author = thisbook.author.replace(/&nbsp;/gi,''); }
+							var tags = [];
+							$(d).find('.lt-tag').each(function(i, e) { tags.push($(e).html()); })
+							thisbook.tags = tags.join(", ")
+							thisbook.fromwhere = $(d).find(':nth-child(9) > div > div').html()
+							if(thisbook.fromwhere) {	thisbook.fromwhere = thisbook.fromwhere.replace(/&nbsp;/gi,''); }
+							thisbook.publication = $(d).find('.lt-publication').html()
+							if(thisbook.publication) {	thisbook.publication = thisbook.publication.replace(/&nbsp;/gi,''); }
+							thisbook.bookid =  $(d).attr('id').split("_")[1];
+
+							allbooks.push(thisbook);
+					});
+					console.log(allbooks);
+          self.$data.books = _.keyBy(allbooks, 'bookid');
+          self.$data.isLoading = false;
+			})
+
+		},
     downloadData() {
 
 
@@ -284,7 +316,8 @@ var bm = new Vue({
     }
   },
   mounted() {
-    this.downloadData()
+    //this.downloadData()
+    this.downloadDataWithCors()
     this.qr = new QRCode(document.getElementById("qrcode"));
   },
   updated() {
