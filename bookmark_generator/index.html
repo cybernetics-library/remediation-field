@@ -256,8 +256,9 @@ var bm = new Vue({
   methods: {
     downloadDataWithCors() {
 			var self = this;
+      var collectionid =  getUrlValue("collectionid");
 			var corsproxyurl = "https://cors-anywhere.herokuapp.com/";
-			var libthingurl = "http://www.librarything.com/catalog_bottom.php?view=CyberneticsCon&collection=510245&printable=1";
+			var libthingurl = "http://www.librarything.com/catalog_bottom.php?view=CyberneticsCon&collection=" + collectionid + "&printable=1";
 			var geturl = corsproxyurl + libthingurl;
 			$.get(geturl, function(d) {
 					var allbooks = [];
