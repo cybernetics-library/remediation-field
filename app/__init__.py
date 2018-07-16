@@ -329,4 +329,26 @@ def refresh():
     socketio.emit('refresh', {}, namespace="/socket")
     return jsonify({})
 
+@app.route('/checkout/<id>', methods=['POST', 'GET'])
+def checkout(id):
+    if request.method == 'GET':
+        return render_template('book.html', id=id)
+        #return redirect("http://www.example.com?id=" + id, code=302)
+    """
+    else:
+        """records a checkout for a attendee and station"""
+        # save new book ids
+        data = request.get_json()
+        db['checkouts'].append({
+            'book_id': id,
+            'attendee_id': data['attendee_id'],
+            'station_id': data['station_id'],
+            'timestamp': data['timestamp']
+        })
+
+        if(id) in LIBRARY['books']:
+            # return book info
+            book = LIBRARY['books'][id]
+            return jsonify(**book)
+    """
 
