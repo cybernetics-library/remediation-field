@@ -334,9 +334,9 @@ def checkout(id):
     if request.method == 'GET':
         return render_template('book.html', id=id)
         #return redirect("http://www.example.com?id=" + id, code=302)
-    """
+"""
     else:
-        """records a checkout for a attendee and station"""
+        #records a checkout for a attendee and station
         # save new book ids
         data = request.get_json()
         db['checkouts'].append({
@@ -350,5 +350,5 @@ def checkout(id):
             # return book info
             book = LIBRARY['books'][id]
             return jsonify(**book)
-    """
+"""
 
